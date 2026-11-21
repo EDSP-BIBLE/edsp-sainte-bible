@@ -315,5 +315,5 @@ if(ses){S.user=ses.user;await loadFav();if(S.screen!=="bible"&&S.screen!=="newpw
 else{S.user=null;S.fav=[];S.hlm={};S.nt={};S.sel=null;S.nv=false;let seenAny=false;try{seenAny=!!localStorage.getItem("edsp_seen")}catch(e){}S.screen=seenAny?"login":"reg";render()}},0));
 setTimeout(()=>{const s=document.getElementById("splash");s.style.opacity=0;setTimeout(()=>s.hidden=true,500)},1200);
 </script>
-</body>
+<script src="nav.js"></script></body>
 </html>
