@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Préparation du sermon · EDSP-Sainte Bible</title>
+<meta name="theme-color" content="#1E2A18">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;1,6..72,400&display=swap" rel="stylesheet">
+<style>
+:root{--page:linear-gradient(160deg,#2A190F 0%,#1E2A18 55%,#0F2A1C 100%);--fg:#E6DDBF;--mut:#BDB394;--gold:#D6B75C;--line:rgba(214,183,92,.38);--card:#C9C197;--ink:#1E1A10;--btn:#26331F;--on:#E6DDBF;--cardbg:linear-gradient(145deg,#B4AA79,#9D9461);--cl:#2E1E02;--cm:#2A2514;--ok:#1F4D2B;--err:#5A0D08;color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+:root[data-theme="light"]{--page:linear-gradient(160deg,#6A4A34 0%,#5A5A3E 50%,#4C6B4A 100%);--fg:#F2EACF;--mut:#E8E0C2}
+*,*::before,*::after{box-sizing:inherit}
+html{background:#1E2A18;scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--page);background-attachment:fixed;color:var(--fg);font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;min-height:100vh}
+main{max-width:42rem;margin:0 auto;padding:1.25rem 1.25rem 3rem}
+h1{font:600 1.8rem/1.2 Newsreader,Georgia,serif;margin:.25rem 0 .4rem}
+p.sub{color:var(--mut);margin:0 0 1rem}
+.card{background:var(--cardbg);border:1.5px solid #D6B75C;border-radius:14px;padding:1rem;margin:0 0 1rem;color:var(--ink);box-shadow:0 2px 10px rgba(0,0,0,.35)}
+h2{font:600 1.2rem Newsreader,Georgia,serif;color:var(--cl);margin:0 0 .6rem}
+label{display:block;font-weight:600;margin:.8rem 0 .25rem}
+label:first-child{margin-top:0}
+.hint{font-weight:400;color:var(--cm);font-size:.88rem}
+input,textarea,select{width:100%;font:inherit;color:var(--ink);background:#C4BC8C;border:1px solid rgba(30,26,16,.28);border-radius:6px;padding:.6rem .7rem;min-height:2.75rem}
+textarea{min-height:6rem;resize:vertical}
+textarea.s{min-height:4rem}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
+.bar{display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;margin-top:.7rem}
+button{font:inherit;cursor:pointer;min-height:2.75rem;padding:0 1rem;border-radius:6px;border:1px solid rgba(30,26,16,.28);background:#C4BC8C;color:var(--ink)}
+button.p{background:var(--btn);color:var(--on);border:0;font-weight:600}
+button.x{border:0;background:none;color:var(--cm);text-decoration:underline;padding:0 .5rem;min-height:2rem}
+a.back{display:inline-block;color:var(--gold);padding:.5rem 0}
+.pt{border-left:3px solid var(--cl);padding-left:.8rem;margin:0 0 1rem}
+.pt b{font-family:Newsreader,Georgia,serif;font-size:1.05rem}
+.st{color:var(--ok);min-height:1.3rem;font-size:.92rem;margin:.4rem 0 0}
+.st.e{color:var(--err)}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<main>
+<a class="back" href="index.html">← Retour à la Bible</a>
+<h1>Préparation du sermon</h1>
+<p class="sub">Un guide simple, étape par étape. Vos sermons sont enregistrés dans votre compte, privés, et disponibles sur tous vos appareils.</p>
+<div id="msg" class="card" hidden></div>
+<div id="app" hidden>
+<div class="card">
+<label for="sel">Mes sermons</label>
+<select id="sel"></select>
+<div class="bar"><button class="p" id="nw">Nouveau sermon</button><button id="dl">Supprimer</button><button id="th" aria-label="Changer le thème">◐</button></div>
+</div>
+<div id="f"></div>
+<div class="card">
+<h2>Durée estimée</h2>
+<p id="tm" style="margin:0"></p>
+<div class="bar"><button class="p" id="cp">Copier le sermon en texte</button></div>
+<div class="st" id="st" role="status"></div>
+</div>
+</div>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script>
+/* Même adresse et même clé publique (anon) que index.html */
+const SB_URL="https://wkgbhmrfhvcljtvbocxu.supabase.co", SB_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndrZ2JobXJmaHZjbGp0dmJvY3h1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMyMjUxMDYsImV4cCI6MjEwODgwMTEwNn0.vOMkUz5xHmfgO3ymDLZqSwYr7XIBDBetNUNRSp5exOs";
+const sb=supabase.createClient(SB_URL,SB_KEY);
+const $=s=>document.querySelector(s);
+const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const blank=()=>({id:Date.now().toString(36),title:"",passage:"",theme:"",date:"",duree:20,central:"",intro:"",points:[{t:"",d:"",a:""},{t:"",d:"",a:""},{t:"",d:"",a:""}],illus:"",concl:"",prayer:""});
+let U=null,L=[],C=null,ask=false,tmr,sv;
+const cur=()=>L.find(s=>s.id===C)||L[0];
+try{const p=JSON.parse(localStorage.getItem("edsp_prefs")||"{}");if(p.theme)document.documentElement.dataset.theme=p.theme}catch(e){}
+function status(m,e){const x=$("#st");x.textContent=m;x.className="st"+(e?" e":"");clearTimeout(tmr);if(!e)tmr=setTimeout(()=>{x.textContent=""},2500)}
+function words(s){return (s.title+" "+s.central+" "+s.intro+" "+s.points.map(p=>p.t+" "+p.d+" "+p.a).join(" ")+" "+s.illus+" "+s.concl+" "+s.prayer).trim().split(/\s+/).filter(Boolean).length}
+function time(){const s=cur(),has=s.title||s.central||s.intro||s.illus||s.concl||s.prayer||s.points.some(p=>p.t||p.d||p.a),n=has?words(s):0;$("#tm").textContent=n+" mots, soit environ "+Math.round(n/130)+" min de parole (objectif : "+(s.duree||"?")+" min)."}
+function queue(){clearTimeout(sv);status("Enregistrement…");const s=cur();sv=setTimeout(async()=>{const {error}=await sb.from("sermons").upsert({id:s.id,user_id:U.id,contenu:s,updated_at:new Date().toISOString()},{onConflict:"user_id,id"});error?status("L’enregistrement a échoué. Réessayez dans un instant.",1):status("Enregistré.")},700)}
+const fl=(lab,k,type,hint,cls)=>`<label for="${k}">${lab}${hint?` <span class="hint">${hint}</span>`:""}</label>${type==="t"?`<textarea id="${k}" class="${cls||""}" data-k="${k}">${esc(cur()[k])}</textarea>`:`<input id="${k}" type="${type}" data-k="${k}" value="${esc(cur()[k])}">`}`;
+function draw(){const s=cur();
+$("#sel").innerHTML=L.map(x=>`<option value="${x.id}" ${x.id===s.id?"selected":""}>${esc(x.title||"Sermon sans titre")}</option>`).join("");
+$("#dl").textContent=ask?"Confirmer la suppression ?":"Supprimer";
+$("#f").innerHTML=`<div class="card"><h2>1. Le point de départ</h2>${fl("Titre","title","text")}${fl("Passage biblique","passage","text","ex. Jean 3:1-21")}${fl("Thème","theme","text")}<div class="g2"><div>${fl("Date","date","date")}</div><div>${fl("Durée visée (min)","duree","number")}</div></div></div>
+<div class="card"><h2>2. L’idée centrale</h2>${fl("Le message en une phrase","central","t","Si l’assemblée ne retient qu’une chose, laquelle ?","s")}</div>
+<div class="card"><h2>3. L’introduction</h2>${fl("Pour attirer l’attention et présenter le sujet","intro","t")}</div>
+<div class="card"><h2>4. Les points principaux</h2>${s.points.map((p,i)=>`<div class="pt"><b>Point ${i+1}</b>${s.points.length>1?` <button class="x" data-rm="${i}">Retirer</button>`:""}<label for="pt${i}">Titre du point</label><input id="pt${i}" data-i="${i}" data-p="t" value="${esc(p.t)}"><label for="pd${i}">Explication du texte</label><textarea id="pd${i}" class="s" data-i="${i}" data-p="d">${esc(p.d)}</textarea><label for="pa${i}">Application pour la vie</label><textarea id="pa${i}" class="s" data-i="${i}" data-p="a">${esc(p.a)}</textarea></div>`).join("")}<button id="ap">Ajouter un point</button></div>
+<div class="card"><h2>5. Illustration</h2>${fl("Une histoire ou un exemple concret","illus","t")}</div>
+<div class="card"><h2>6. Conclusion et appel</h2>${fl("Comment conclure, et à quoi inviter l’assemblée","concl","t")}${fl("Prière","prayer","t","","s")}</div>`;time()}
+document.addEventListener("input",e=>{if(!U)return;const t=e.target,s=cur();
+if(t.dataset.k){s[t.dataset.k]=t.value;if(t.dataset.k==="title"){const o=$("#sel option:checked");if(o)o.textContent=t.value||"Sermon sans titre"}}
+else if(t.dataset.p){s.points[+t.dataset.i][t.dataset.p]=t.value}else return;
+time();queue()});
+document.addEventListener("click",async e=>{const t=e.target.closest("button");if(!t||!U)return;const s=cur();
+if(t.id==="nw"){const b=blank();L.unshift(b);C=b.id;ask=false;draw();scrollTo(0,0)}
+else if(t.id==="dl"){if(!ask){ask=true;draw();return}ask=false;const id=s.id;const {error}=await sb.from("sermons").delete().eq("id",id);if(error){status("La suppression a échoué. Réessayez.",1);draw();return}L=L.filter(x=>x.id!==id);if(!L.length)L=[blank()];C=L[0].id;draw()}
+else if(t.id==="ap"){s.points.push({t:"",d:"",a:""});queue();draw()}
+else if(t.dataset.rm!==undefined){s.points.splice(+t.dataset.rm,1);queue();draw()}
+else if(t.id==="th"){const r=document.documentElement,n=r.dataset.theme==="light"?"dark":"light";r.dataset.theme=n;try{const p=JSON.parse(localStorage.getItem("edsp_prefs")||"{}");p.theme=n;localStorage.setItem("edsp_prefs",JSON.stringify(p))}catch(_){}}
+else if(t.id==="cp"){const x=txt(s),ok=()=>status("Copié. Vous pouvez le coller où vous voulez.");
+const fb=()=>{const a=document.createElement("textarea");a.value=x;document.body.appendChild(a);a.select();try{document.execCommand("copy");ok()}catch(_){status("Copie impossible : sélectionnez le texte à la main.",1)}a.remove()};
+try{navigator.clipboard.writeText(x).then(ok,fb)}catch(_){fb()}}});
+$("#sel").onchange=e=>{C=e.target.value;ask=false;draw()};
+function txt(s){const o=[],a=(h,v)=>{if(v&&v.trim())o.push(h+"\n"+v.trim()+"\n")};
+o.push((s.title||"Sermon sans titre").toUpperCase());if(s.passage)o.push("Passage : "+s.passage);if(s.theme)o.push("Thème : "+s.theme);if(s.date)o.push("Date : "+s.date);o.push("");
+a("IDÉE CENTRALE",s.central);a("INTRODUCTION",s.intro);
+s.points.forEach((p,i)=>{if(p.t||p.d||p.a){o.push("POINT "+(i+1)+(p.t?" : "+p.t:""));if(p.d)o.push("Explication : "+p.d);if(p.a)o.push("Application : "+p.a);o.push("")}});
+a("ILLUSTRATION",s.illus);a("CONCLUSION ET APPEL",s.concl);a("PRIÈRE",s.prayer);return o.join("\n")}
+function say(h){const m=$("#msg");m.innerHTML=h;m.hidden=false}
+(async()=>{
+const {data:{session}}=await sb.auth.getSession();
+if(!session){say('<h2>Connexion nécessaire</h2><p>Connectez-vous d’abord dans l’application, puis revenez ici.</p><a class="back" href="index.html">Aller à la connexion</a>');return}
+U=session.user;
+const {data,error}=await sb.from("sermons").select("id,contenu,updated_at").order("updated_at",{ascending:false});
+if(error){say("<h2>Chargement impossible</h2><p>Réessayez dans un instant.</p>");return}
+L=(data||[]).map(r=>Object.assign(blank(),r.contenu,{id:r.id}));
+if(!L.length)L=[blank()];C=L[0].id;
+$("#app").hidden=false;draw()})();
+</script>
+</body>
+</html>
