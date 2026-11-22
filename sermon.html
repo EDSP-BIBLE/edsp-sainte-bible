@@ -50,6 +50,14 @@ body{padding-bottom:4.5rem}
 .pvs .vn{font:700 .75rem system-ui,sans-serif;vertical-align:super;margin-right:.2rem;color:var(--cl)}
 p.pn{margin:.5rem 0 0;color:var(--cm);font-size:.92rem}
 .ptx button{margin-top:.4rem;min-height:2.4rem}
+.rel{margin:1rem 0 0;padding-top:.8rem;border-top:1px solid rgba(30,26,16,.28)}
+.rel h2{margin:0 0 .2rem}
+.rg{margin:.8rem 0 0}
+.rg>b{display:block;font:600 1rem Newsreader,Georgia,serif;color:var(--cl);border-bottom:1px solid rgba(30,26,16,.28);padding-bottom:.15rem;margin-bottom:.35rem}
+.ri{margin:0 0 .55rem;font-family:Newsreader,Georgia,serif;font-size:1.02rem;line-height:1.5;color:var(--ink)}
+.ri .rr{font:700 .88rem system-ui,-apple-system,sans-serif;margin-right:.35rem}
+.ri .vn{font:700 .72rem system-ui,sans-serif;vertical-align:super;margin:0 .15rem 0 .25rem;color:var(--cl)}
+.rel .src{font-size:.8rem;color:var(--cm);margin:.8rem 0 0}
 [hidden]{display:none!important}
 </style>
 </head>
@@ -94,19 +102,20 @@ const fl=(lab,k,type,hint,cls)=>`<label for="${k}">${lab}${hint?` <span class="h
 function draw(){const s=cur();
 $("#sel").innerHTML=L.map(x=>`<option value="${x.id}" ${x.id===s.id?"selected":""}>${esc(x.title||"Sermon sans titre")}</option>`).join("");
 $("#dl").textContent=ask?"Confirmer la suppression ?":"Supprimer";
-$("#f").innerHTML=`<div class="card"><h2>1. Le point de départ</h2>${fl("Titre","title","text")}${fl("Passage biblique","passage","text","ex. Jean 3:16 ou Jean 3:1-21 : le texte s’affiche tout seul")}<div id="ptx" aria-live="polite"></div>${fl("Thème","theme","text")}<div class="g2"><div>${fl("Date","date","date")}</div><div>${fl("Durée visée (min)","duree","number")}</div></div></div>
+$("#f").innerHTML=`<div class="card"><h2>1. Le point de départ</h2>${fl("Titre","title","text")}${fl("Passage biblique","passage","text","ex. Jean 3:16 ou Jean 3:1-21 : le texte s’affiche tout seul")}<div id="ptx" aria-live="polite"></div><div id="rel" aria-live="polite"></div>${fl("Thème","theme","text")}<div class="g2"><div>${fl("Date","date","date")}</div><div>${fl("Durée visée (min)","duree","number")}</div></div></div>
 <div class="card"><h2>2. L’idée centrale</h2>${fl("Le message en une phrase","central","t","Si l’assemblée ne retient qu’une chose, laquelle ?","s")}</div>
 <div class="card"><h2>3. L’introduction</h2>${fl("Pour attirer l’attention et présenter le sujet","intro","t")}</div>
 <div class="card"><h2>4. Les points principaux</h2>${s.points.map((p,i)=>`<div class="pt"><b>Point ${i+1}</b>${s.points.length>1?` <button class="x" data-rm="${i}">Retirer</button>`:""}<label for="pt${i}">Titre du point</label><input id="pt${i}" data-i="${i}" data-p="t" value="${esc(p.t)}"><label for="pd${i}">Explication du texte</label><textarea id="pd${i}" class="s" data-i="${i}" data-p="d">${esc(p.d)}</textarea><label for="pa${i}">Application pour la vie</label><textarea id="pa${i}" class="s" data-i="${i}" data-p="a">${esc(p.a)}</textarea></div>`).join("")}<button id="ap">Ajouter un point</button></div>
 <div class="card"><h2>5. Illustration</h2>${fl("Une histoire ou un exemple concret","illus","t")}</div>
 <div class="card"><h2>6. Conclusion et appel</h2>${fl("Comment conclure, et à quoi inviter l’assemblée","concl","t")}${fl("Prière","prayer","t","","s")}</div>`;time();showPassage()}
 document.addEventListener("input",e=>{if(!U)return;const t=e.target,s=cur();
-if(t.dataset.k){s[t.dataset.k]=t.value;if(t.dataset.k==="passage"){FULL=false;schedulePassage()}if(t.dataset.k==="title"){const o=$("#sel option:checked");if(o)o.textContent=t.value||"Sermon sans titre"}}
+if(t.dataset.k){s[t.dataset.k]=t.value;if(t.dataset.k==="passage"){FULL=false;RELMAX=40;schedulePassage()}if(t.dataset.k==="title"){const o=$("#sel option:checked");if(o)o.textContent=t.value||"Sermon sans titre"}}
 else if(t.dataset.p){s.points[+t.dataset.i][t.dataset.p]=t.value}else return;
 time();queue()});
 document.addEventListener("click",async e=>{const t=e.target.closest("button");if(!t||!U)return;const s=cur();
 if(t.id==="nw"){const b=blank();L.unshift(b);C=b.id;ask=false;draw();scrollTo(0,0)}
 else if(t.id==="dl"){if(!ask){ask=true;draw();return}ask=false;const id=s.id;const {error}=await sb.from("sermons").delete().eq("id",id);if(error){status("La suppression a échoué. Réessayez.",1);draw();return}L=L.filter(x=>x.id!==id);if(!L.length)L=[blank()];C=L[0].id;draw()}
+else if(t.id==="rmore"){RELMAX+=40;showPassage()}
 else if(t.id==="pfull"){FULL=!FULL;showPassage()}
 else if(t.id==="ap"){s.points.push({t:"",d:"",a:""});queue();draw()}
 else if(t.dataset.rm!==undefined){s.points.splice(+t.dataset.rm,1);queue();draw()}
@@ -117,13 +126,13 @@ try{navigator.clipboard.writeText(x).then(ok,fb)}catch(_){fb()}}});
 document.addEventListener("change",e=>{if(e.target.id==="pv"){V=e.target.value;FULL=false;showPassage()}});
 $("#sel").onchange=e=>{C=e.target.value;ask=false;draw()};
 function txt(s){const o=[],a=(h,v)=>{if(v&&v.trim())o.push(h+"\n"+v.trim()+"\n")};
-o.push((s.title||"Sermon sans titre").toUpperCase());if(s.passage)o.push("Passage : "+s.passage);if(s.theme)o.push("Thème : "+s.theme);if(s.date)o.push("Date : "+s.date);o.push("");if(PCOPY)o.push("PASSAGE\n"+PCOPY+"\n");
+o.push((s.title||"Sermon sans titre").toUpperCase());if(s.passage)o.push("Passage : "+s.passage);if(s.theme)o.push("Thème : "+s.theme);if(s.date)o.push("Date : "+s.date);o.push("");if(PCOPY)o.push("PASSAGE\n"+PCOPY+"\n");if(RELCOPY)o.push("PASSAGES LIÉS\n"+RELCOPY+"\n");
 a("IDÉE CENTRALE",s.central);a("INTRODUCTION",s.intro);
 s.points.forEach((p,i)=>{if(p.t||p.d||p.a){o.push("POINT "+(i+1)+(p.t?" : "+p.t:""));if(p.d)o.push("Explication : "+p.d);if(p.a)o.push("Application : "+p.a);o.push("")}});
 a("ILLUSTRATION",s.illus);a("CONCLUSION ET APPEL",s.concl);a("PRIÈRE",s.prayer);return o.join("\n")}
 
 /* ===== Passage biblique : les versets s'affichent automatiquement ===== */
-let BK=[],VR=[],V="LSG",PT=0,PC={},PCOPY="",FULL=false,ptT;
+let BK=[],VR=[],V="LSG",PT=0,PC={},PCOPY="",FULL=false,ptT,RC={},TXC={},RELMAX=40,RELCOPY="";
 try{const q=JSON.parse(localStorage.getItem("edsp_prefs")||"{}");V=q.verPick&&q.ver?q.ver:(q.lang==="en"?"WEB":"LSG")}catch(e){}
 const nz=x=>String(x).normalize("NFD").replace(/\p{M}/gu,"").toLowerCase().replace(/[^a-z0-9]/g,"");
 const AL={gn:"GEN",ex:"EXO",lv:"LEV",nb:"NUM",dt:"DEU",ps:"PSA",pr:"PRO",mt:"MAT",mc:"MAR",lc:"LUK",jn:"JOH",ac:"ACT",rm:"ROM",ap:"REV","1jn":"1JO","2jn":"2JO","3jn":"3JO"};
@@ -139,7 +148,7 @@ const {data,error}=await sb.from("versets").select("verset,texte").eq("version",
 if(error)throw error;PC[key]=data||[];return PC[key]}
 function schedulePassage(){clearTimeout(ptT);ptT=setTimeout(showPassage,600)}
 async function showPassage(){const box=$("#ptx");if(!box)return;
-const raw=(cur().passage||"").trim(),my=++PT;PCOPY="";
+const raw=(cur().passage||"").trim(),my=++PT;PCOPY="";RELCOPY="";const rb=$("#rel");if(rb)rb.innerHTML="";
 const note=m=>{box.innerHTML='<p class="pn">'+m+'</p>'};
 if(!raw){box.innerHTML="";return}
 const r=parseRef(raw);
@@ -157,7 +166,39 @@ const show=(FULL&&r.v1)?rows:want,hi=v=>FULL&&r.v1&&v.verset>=r.v1&&v.verset<=r.
 const vs=VR.length?VR:[{code:"LSG"},{code:"WEB"}];
 PCOPY=title+" ("+V+")\n"+want.map(v=>v.verset+" "+v.texte).join("\n");
 box.innerHTML='<div class="ptx"><div class="pth"><b>'+esc(title)+'</b><select id="pv" aria-label="Version">'+vs.map(v=>'<option value="'+esc(v.code)+'"'+(v.code===V?" selected":"")+'>'+esc(v.code)+'</option>').join("")+'</select></div><div class="pvs">'+show.map(v=>'<p'+(hi(v)?' class="hi"':'')+'><span class="vn">'+v.verset+'</span>'+esc(v.texte)+'</p>').join("")+'</div>'+(r.v1?'<button id="pfull" type="button">'+(FULL?"Réduire au passage":"Voir tout le chapitre")+'</button>':'')+'</div>';
-const h=box.querySelector(".pvs p.hi"),c=box.querySelector(".pvs");if(h&&c)c.scrollTop=Math.max(0,h.offsetTop-8)}
+const h=box.querySelector(".pvs p.hi"),c=box.querySelector(".pvs");if(h&&c)c.scrollTop=Math.max(0,h.offsetTop-8);showRelated(r,my)}
+
+/* ===== Passages liés (références croisées, OpenBible.info CC BY) ===== */
+function bookRefs(code){if(!RC[code])RC[code]=fetch("renvois/"+code+".json").then(r=>{if(!r.ok)throw new Error(r.status);return r.json()}).catch(e=>{delete RC[code];throw e});return RC[code]}
+const rlab=(c1,v1,c2,v2)=>c1===c2?c1+":"+v1+(v2>v1?"-"+v2:""):c1+":"+v1+"–"+c2+":"+v2;
+async function showRelated(r,my){const box=$("#rel");if(!box)return;
+const note=m=>{box.innerHTML='<p class="pn">'+m+'</p>'};
+if(!r.v1){note("Indiquez un verset (par exemple « "+esc(r.b.nom_fr)+" "+r.c+":1 ») pour voir les passages liés.");return}
+note("Recherche des passages liés…");
+let d;try{d=await bookRefs(r.b.code)}catch(e){if(my===PT)note("Les passages liés ne sont pas disponibles pour le moment.");return}
+if(my!==PT)return;
+const m={};
+for(let v=r.v1;v<=Math.min(r.v2,r.v1+29);v++){(d[r.c+"."+v]||[]).forEach(x=>{
+if(x[0]===r.b.code&&x[1]===r.c&&x[3]===r.c&&x[2]<=r.v2&&x[4]>=r.v1)return;
+const k=x.slice(0,5).join(".");if(!m[k])m[k]={x:x,v:0};m[k].v+=x[5]})}
+const list=Object.values(m).sort((a,b)=>b.v-a.v);
+if(!list.length){note("Aucun passage lié trouvé pour ce verset.");return}
+const shown=list.slice(0,RELMAX),end=x=>x[1]===x[3]?Math.min(x[4],x[2]+5):x[2];
+const conds=shown.map(s=>{const x=s.x;return "and(livre.eq."+x[0]+",chapitre.eq."+x[1]+",verset.gte."+x[2]+",verset.lte."+end(x)+")"});
+const chunks=[];for(let i=0;i<conds.length;i+=25)chunks.push(conds.slice(i,i+25).join(","));
+let rows=[];try{const res=await Promise.all(chunks.map(async cs=>{const k=V+"|"+cs;if(TXC[k])return TXC[k];
+const {data,error}=await sb.from("versets").select("livre,chapitre,verset,texte").eq("version",V).or(cs);if(error)throw error;TXC[k]=data||[];return TXC[k]}));rows=[].concat.apply([],res)}catch(e){rows=[]}
+if(my!==PT)return;
+const tx={};rows.forEach(z=>{const k=z.livre+"|"+z.chapitre;(tx[k]=tx[k]||[]).push(z)});
+const en=(VR.find(v=>v.code===V)||{}).langue==="en",bn=c=>{const k=BK.find(b=>b.code===c)||{};return (en?k.nom_en:k.nom_fr)||c},ord=c=>(BK.find(b=>b.code===c)||{ordre:99}).ordre;
+const g={};shown.forEach(s=>{(g[s.x[0]]=g[s.x[0]]||[]).push(s.x)});
+const codes=Object.keys(g).sort((a,b)=>ord(a)-ord(b));
+RELCOPY=shown.slice(0,10).map(s=>bn(s.x[0])+" "+rlab(s.x[1],s.x[2],s.x[3],s.x[4])).join(" ; ");
+const item=x=>{const vs=(tx[x[0]+"|"+x[1]]||[]).filter(z=>z.verset>=x[2]&&z.verset<=end(x)).sort((a,b)=>a.verset-b.verset);
+const more=(x[1]!==x[3]||x[4]>end(x))?" …":"";
+const body=vs.length?vs.map((z,i)=>(vs.length>1?'<span class="vn">'+z.verset+'</span>':'')+esc(z.texte)).join(" ")+more:'<i>Texte non disponible.</i>';
+return '<div class="ri"><span class="rr">'+esc(rlab(x[1],x[2],x[3],x[4]))+'</span>'+body+'</div>'};
+box.innerHTML='<div class="rel"><h2>Passages liés</h2><p class="pn">'+shown.length+(list.length>shown.length?" sur "+list.length:"")+' passages, dans '+codes.length+' livre'+(codes.length>1?"s":"")+', les plus proches en premier dans chaque livre.</p>'+codes.map(c=>'<div class="rg"><b>'+esc(bn(c))+'</b>'+g[c].map(item).join("")+'</div>').join("")+(list.length>shown.length?'<button id="rmore" type="button">Voir plus de passages</button>':'')+'<p class="src">Références croisées : OpenBible.info (licence CC BY), d’après le Trésor de la connaissance biblique.</p></div>'}
 function say(h){const m=$("#msg");m.innerHTML=h;m.hidden=false}
 (async()=>{
 const {data:{session}}=await sb.auth.getSession();
