@@ -58,6 +58,14 @@ p.pn{margin:.5rem 0 0;color:var(--cm);font-size:.92rem}
 .ri .rr{font:700 .88rem system-ui,-apple-system,sans-serif;margin-right:.35rem}
 .ri .vn{font:700 .72rem system-ui,sans-serif;vertical-align:super;margin:0 .15rem 0 .25rem;color:var(--cl)}
 .rel .src{font-size:.8rem;color:var(--cm);margin:.8rem 0 0}
+.deep{margin:1rem 0 0;padding-top:.8rem;border-top:1px solid rgba(30,26,16,.28)}
+.deep h2{margin:0 0 .2rem}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;margin:.5rem 0 0}
+.chip{min-height:2.5rem;padding:0 .8rem;border-radius:999px;border:1px solid rgba(30,26,16,.35);background:#C4BC8C;color:var(--ink);font:inherit}
+.chip small{opacity:.7;margin-left:.25rem}
+.chip[aria-pressed=true]{background:var(--btn);color:var(--on);border-color:var(--btn)}
+#dres{margin-top:.7rem;max-height:30rem;overflow:auto}
+.ri mark{background:rgba(214,183,92,.6);color:inherit;border-radius:3px;padding:0 .1em}
 [hidden]{display:none!important}
 </style>
 </head>
@@ -102,7 +110,7 @@ const fl=(lab,k,type,hint,cls)=>`<label for="${k}">${lab}${hint?` <span class="h
 function draw(){const s=cur();
 $("#sel").innerHTML=L.map(x=>`<option value="${x.id}" ${x.id===s.id?"selected":""}>${esc(x.title||"Sermon sans titre")}</option>`).join("");
 $("#dl").textContent=ask?"Confirmer la suppression ?":"Supprimer";
-$("#f").innerHTML=`<div class="card"><h2>1. Le point de départ</h2>${fl("Titre","title","text")}${fl("Passage biblique","passage","text","ex. Jean 3:16 ou Jean 3:1-21 : le texte s’affiche tout seul")}<div id="ptx" aria-live="polite"></div><div id="rel" aria-live="polite"></div>${fl("Thème","theme","text")}<div class="g2"><div>${fl("Date","date","date")}</div><div>${fl("Durée visée (min)","duree","number")}</div></div></div>
+$("#f").innerHTML=`<div class="card"><h2>1. Le point de départ</h2>${fl("Titre","title","text")}${fl("Passage biblique","passage","text","ex. Jean 3:16 ou Jean 3:1-21 : le texte s’affiche tout seul")}<div id="ptx" aria-live="polite"></div><div id="deep"></div><div id="rel" aria-live="polite"></div>${fl("Thème","theme","text")}<div class="g2"><div>${fl("Date","date","date")}</div><div>${fl("Durée visée (min)","duree","number")}</div></div></div>
 <div class="card"><h2>2. L’idée centrale</h2>${fl("Le message en une phrase","central","t","Si l’assemblée ne retient qu’une chose, laquelle ?","s")}</div>
 <div class="card"><h2>3. L’introduction</h2>${fl("Pour attirer l’attention et présenter le sujet","intro","t")}</div>
 <div class="card"><h2>4. Les points principaux</h2>${s.points.map((p,i)=>`<div class="pt"><b>Point ${i+1}</b>${s.points.length>1?` <button class="x" data-rm="${i}">Retirer</button>`:""}<label for="pt${i}">Titre du point</label><input id="pt${i}" data-i="${i}" data-p="t" value="${esc(p.t)}"><label for="pd${i}">Explication du texte</label><textarea id="pd${i}" class="s" data-i="${i}" data-p="d">${esc(p.d)}</textarea><label for="pa${i}">Application pour la vie</label><textarea id="pa${i}" class="s" data-i="${i}" data-p="a">${esc(p.a)}</textarea></div>`).join("")}<button id="ap">Ajouter un point</button></div>
@@ -115,6 +123,7 @@ time();queue()});
 document.addEventListener("click",async e=>{const t=e.target.closest("button");if(!t||!U)return;const s=cur();
 if(t.id==="nw"){const b=blank();L.unshift(b);C=b.id;ask=false;draw();scrollTo(0,0)}
 else if(t.id==="dl"){if(!ask){ask=true;draw();return}ask=false;const id=s.id;const {error}=await sb.from("sermons").delete().eq("id",id);if(error){status("La suppression a échoué. Réessayez.",1);draw();return}L=L.filter(x=>x.id!==id);if(!L.length)L=[blank()];C=L[0].id;draw()}
+else if(t.classList.contains("chip")){showWord(t)}
 else if(t.id==="rmore"){RELMAX+=40;showPassage()}
 else if(t.id==="pfull"){FULL=!FULL;showPassage()}
 else if(t.id==="ap"){s.points.push({t:"",d:"",a:""});queue();draw()}
@@ -132,7 +141,7 @@ s.points.forEach((p,i)=>{if(p.t||p.d||p.a){o.push("POINT "+(i+1)+(p.t?" : "+p.t:
 a("ILLUSTRATION",s.illus);a("CONCLUSION ET APPEL",s.concl);a("PRIÈRE",s.prayer);return o.join("\n")}
 
 /* ===== Passage biblique : les versets s'affichent automatiquement ===== */
-let BK=[],VR=[],V="LSG",PT=0,PC={},PCOPY="",FULL=false,ptT,RC={},TXC={},RELMAX=40,RELCOPY="";
+let BK=[],VR=[],V="LSG",PT=0,PC={},PCOPY="",FULL=false,ptT,RC={},TXC={},RELMAX=40,RELCOPY="",PT_W=0;
 try{const q=JSON.parse(localStorage.getItem("edsp_prefs")||"{}");V=q.verPick&&q.ver?q.ver:(q.lang==="en"?"WEB":"LSG")}catch(e){}
 const nz=x=>String(x).normalize("NFD").replace(/\p{M}/gu,"").toLowerCase().replace(/[^a-z0-9]/g,"");
 const AL={gn:"GEN",ex:"EXO",lv:"LEV",nb:"NUM",dt:"DEU",ps:"PSA",pr:"PRO",mt:"MAT",mc:"MAR",lc:"LUK",jn:"JOH",ac:"ACT",rm:"ROM",ap:"REV","1jn":"1JO","2jn":"2JO","3jn":"3JO"};
@@ -148,7 +157,7 @@ const {data,error}=await sb.from("versets").select("verset,texte").eq("version",
 if(error)throw error;PC[key]=data||[];return PC[key]}
 function schedulePassage(){clearTimeout(ptT);ptT=setTimeout(showPassage,600)}
 async function showPassage(){const box=$("#ptx");if(!box)return;
-const raw=(cur().passage||"").trim(),my=++PT;PCOPY="";RELCOPY="";const rb=$("#rel");if(rb)rb.innerHTML="";
+const raw=(cur().passage||"").trim(),my=++PT;PCOPY="";RELCOPY="";const rb=$("#rel");if(rb)rb.innerHTML="";const db=$("#deep");if(db)db.innerHTML="";
 const note=m=>{box.innerHTML='<p class="pn">'+m+'</p>'};
 if(!raw){box.innerHTML="";return}
 const r=parseRef(raw);
@@ -166,7 +175,7 @@ const show=(FULL&&r.v1)?rows:want,hi=v=>FULL&&r.v1&&v.verset>=r.v1&&v.verset<=r.
 const vs=VR.length?VR:[{code:"LSG"},{code:"WEB"}];
 PCOPY=title+" ("+V+")\n"+want.map(v=>v.verset+" "+v.texte).join("\n");
 box.innerHTML='<div class="ptx"><div class="pth"><b>'+esc(title)+'</b><select id="pv" aria-label="Version">'+vs.map(v=>'<option value="'+esc(v.code)+'"'+(v.code===V?" selected":"")+'>'+esc(v.code)+'</option>').join("")+'</select></div><div class="pvs">'+show.map(v=>'<p'+(hi(v)?' class="hi"':'')+'><span class="vn">'+v.verset+'</span>'+esc(v.texte)+'</p>').join("")+'</div>'+(r.v1?'<button id="pfull" type="button">'+(FULL?"Réduire au passage":"Voir tout le chapitre")+'</button>':'')+'</div>';
-const h=box.querySelector(".pvs p.hi"),c=box.querySelector(".pvs");if(h&&c)c.scrollTop=Math.max(0,h.offsetTop-8);showRelated(r,my)}
+const h=box.querySelector(".pvs p.hi"),c=box.querySelector(".pvs");if(h&&c)c.scrollTop=Math.max(0,h.offsetTop-8);showDeep(r,my);showRelated(r,my)}
 
 /* ===== Passages liés (références croisées, OpenBible.info CC BY) ===== */
 function bookRefs(code){if(!RC[code])RC[code]=fetch(code+".json").then(r=>{if(!r.ok)throw new Error(r.status);return r.json()}).catch(e=>{delete RC[code];throw e});return RC[code]}
@@ -199,6 +208,29 @@ const more=(x[1]!==x[3]||x[4]>end(x))?" …":"";
 const body=vs.length?vs.map((z,i)=>(vs.length>1?'<span class="vn">'+z.verset+'</span>':'')+esc(z.texte)).join(" ")+more:'<i>Texte non disponible.</i>';
 return '<div class="ri"><span class="rr">'+esc(rlab(x[1],x[2],x[3],x[4]))+'</span>'+body+'</div>'};
 box.innerHTML='<div class="rel"><h2>Passages liés</h2><p class="pn">'+shown.length+(list.length>shown.length?" sur "+list.length:"")+' passages, dans '+codes.length+' livre'+(codes.length>1?"s":"")+', les plus proches en premier dans chaque livre.</p>'+codes.map(c=>'<div class="rg"><b>'+esc(bn(c))+'</b>'+g[c].map(item).join("")+'</div>').join("")+(list.length>shown.length?'<button id="rmore" type="button">Voir plus de passages</button>':'')+'<p class="src">Références croisées : OpenBible.info (licence CC BY), d’après le Trésor de la connaissance biblique.</p></div>'}
+
+/* ===== Recherche approfondie : tous les versets qui contiennent un mot du passage ===== */
+const bnOf=c=>{const k=BK.find(b=>b.code===c)||{};return ((VR.find(v=>v.code===V)||{}).langue==="en"?k.nom_en:k.nom_fr)||c};
+const ordOf=c=>(BK.find(b=>b.code===c)||{ordre:99}).ordre;
+async function showDeep(r,my){const box=$("#deep");if(!box)return;
+if(!r.v1){box.innerHTML="";return}
+let rows;try{const {data,error}=await sb.rpc("mots_cles",{p_version:V,p_livre:r.b.code,p_chapitre:r.c,p_v1:r.v1,p_v2:Math.min(r.v2,r.v1+9)});if(error)throw error;rows=data||[]}catch(e){box.innerHTML="";return}
+if(my!==PT)return;
+if(!rows.length){box.innerHTML="";return}
+box.innerHTML='<div class="deep"><h2>Recherche approfondie</h2><p class="pn">Touchez un mot du passage pour voir tous les versets de la Bible qui le contiennent. Le chiffre indique leur nombre.</p><div class="chips">'+rows.map(w=>'<button type="button" class="chip" aria-pressed="false" data-lx="'+esc(w.lexeme)+'" data-w="'+esc(w.mot)+'" data-n="'+w.n+'">'+esc(w.mot)+'<small>'+w.n+'</small></button>').join("")+'</div><div id="dres" aria-live="polite"></div></div>'}
+async function showWord(btn){const res=$("#dres");if(!res)return;
+document.querySelectorAll(".chip").forEach(c=>c.setAttribute("aria-pressed",String(c===btn)));
+const lx=btn.dataset.lx,w=btn.dataset.w,n=+btn.dataset.n,my=++PT_W;
+res.innerHTML='<p class="pn">Recherche…</p>';
+let rows;try{const {data,error}=await sb.rpc("versets_avec_mot",{p_version:V,p_lexeme:lx,p_limit:120});if(error)throw error;rows=data||[]}catch(e){if(my===PT_W)res.innerHTML='<p class="pn">Recherche impossible pour le moment.</p>';return}
+if(my!==PT_W)return;
+const st=(lx.length>=4?lx:w).toLowerCase(),re=new RegExp("(?<![\\p{L}])"+st.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+"[\\p{L}]*","giu");
+const hlw=t=>{let o="",l=0,m;re.lastIndex=0;while((m=re.exec(t))){o+=esc(t.slice(l,m.index))+"<mark>"+esc(m[0])+"</mark>";l=m.index+m[0].length}return o+esc(t.slice(l))};
+const g={};rows.forEach(z=>{(g[z.livre]=g[z.livre]||[]).push(z)});
+const codes=Object.keys(g).sort((a,b)=>ordOf(a)-ordOf(b));
+codes.forEach(c=>g[c].sort((a,b)=>a.chapitre-b.chapitre||a.verset-b.verset));
+res.innerHTML='<p class="pn"><b>« '+esc(w)+' »</b> : '+n+' versets dans la Bible'+(rows.length<n?' (les '+rows.length+' plus parlants sont affichés)':'')+', dans '+codes.length+' livre'+(codes.length>1?'s':'')+'.</p>'+codes.map(c=>'<div class="rg"><b>'+esc(bnOf(c))+'</b>'+g[c].map(z=>'<div class="ri"><span class="rr">'+z.chapitre+':'+z.verset+'</span>'+hlw(z.texte)+'</div>').join("")+'</div>').join("");
+res.scrollTop=0}
 function say(h){const m=$("#msg");m.innerHTML=h;m.hidden=false}
 (async()=>{
 const {data:{session}}=await sb.auth.getSession();
