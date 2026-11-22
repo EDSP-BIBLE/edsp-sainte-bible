@@ -169,7 +169,7 @@ box.innerHTML='<div class="ptx"><div class="pth"><b>'+esc(title)+'</b><select id
 const h=box.querySelector(".pvs p.hi"),c=box.querySelector(".pvs");if(h&&c)c.scrollTop=Math.max(0,h.offsetTop-8);showRelated(r,my)}
 
 /* ===== Passages liés (références croisées, OpenBible.info CC BY) ===== */
-function bookRefs(code){if(!RC[code])RC[code]=fetch("renvois/"+code+".json").then(r=>{if(!r.ok)throw new Error(r.status);return r.json()}).catch(e=>{delete RC[code];throw e});return RC[code]}
+function bookRefs(code){if(!RC[code])RC[code]=fetch(code+".json").then(r=>{if(!r.ok)throw new Error(r.status);return r.json()}).catch(e=>{delete RC[code];throw e});return RC[code]}
 const rlab=(c1,v1,c2,v2)=>c1===c2?c1+":"+v1+(v2>v1?"-"+v2:""):c1+":"+v1+"–"+c2+":"+v2;
 async function showRelated(r,my){const box=$("#rel");if(!box)return;
 const note=m=>{box.innerHTML='<p class="pn">'+m+'</p>'};
