@@ -1,7 +1,7 @@
 /* EDSP-Sainte Bible : barre d'onglets en bas (5 entrées) + menu « Plus » */
 (function(){
-var FR={lire:"Lire",contenu:"Contenu",cours:"Cours",sermon:"Sermon",plus:"Plus",notes:"Mes notes et surlignages",taille:"Taille du texte",theme:"Changer le thème",lang:"English",out:"Se déconnecter",news:"Nouveautés",admin:"Espace super admin",close:"Fermer",priere:"Sujets de prière",ver:"Version"};
-var EN={lire:"Read",contenu:"Contents",cours:"Course",sermon:"Sermon",plus:"More",notes:"My notes and highlights",taille:"Text size",theme:"Switch theme",lang:"Français",out:"Log out",news:"What’s new",admin:"Super admin area",close:"Close",priere:"Prayer requests",ver:"Version"};
+var FR={lire:"Lire",contenu:"Contenu",cours:"Cours",sermon:"Sermon",plus:"Plus",notes:"Mes notes et surlignages",taille:"Taille du texte",theme:"Changer le thème",lang:"English",out:"Se déconnecter",news:"Nouveautés",admin:"Espace super admin",close:"Fermer",priere:"Sujets de prière",ver:"Version",upd:"Une nouvelle version est disponible.",refresh:"Actualiser"};
+var EN={lire:"Read",contenu:"Contents",cours:"Course",sermon:"Sermon",plus:"More",notes:"My notes and highlights",taille:"Text size",theme:"Switch theme",lang:"Français",out:"Log out",news:"What’s new",admin:"Super admin area",close:"Close",priere:"Prayer requests",ver:"Version",upd:"A new version is available.",refresh:"Refresh"};
 function svg(p){return '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+p+'</svg>'}
 var IC={
 lire:'<path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H11v15H5.5A1.5 1.5 0 0 0 4 20.5z"/><path d="M20 5.5A1.5 1.5 0 0 0 18.5 4H13v15h5.5a1.5 1.5 0 0 1 1.5 1.5z"/>',
@@ -31,6 +31,10 @@ css.textContent=
 ".nmc p{white-space:pre-wrap;margin:.3rem 0;color:#1E1A10}"+
 ".nmx{margin-top:.8rem;min-height:2.7rem;width:100%;border:0;border-radius:8px;background:#26331F;color:#E6DDBF;font:600 1rem system-ui,sans-serif}"+
 ".nsheet .vf{padding:.45rem .8rem .5rem;font-size:.78rem;color:var(--mut)}"+
+".nupd{position:fixed;z-index:10;left:.6rem;right:.6rem;top:calc(.6rem + env(safe-area-inset-top,0px));max-width:34rem;margin:0 auto;display:flex;align-items:center;gap:.6rem;background:#26331F;color:#E6DDBF;border:1.5px solid #D6B75C;border-radius:12px;padding:.6rem .8rem;box-shadow:0 4px 18px rgba(0,0,0,.5);font:600 .92rem system-ui,sans-serif}"+
+".nupd span{flex:1}"+
+".nupd button{min-height:2.4rem;border:0;border-radius:8px;padding:0 .9rem;font:600 .9rem system-ui,sans-serif;background:#D6B75C;color:#1B1710}"+
+".nupd button.x{background:none;color:#E6DDBF;padding:0 .4rem;font-size:1.1rem}"+
 ".nsheet hr{border:0;border-top:1px solid var(--line);margin:.2rem .4rem}";
 css.textContent+=
 /* Lecture : surlignage en bloc propre, au lieu de bandes cassées ligne par ligne */
@@ -48,7 +52,11 @@ css.textContent+=
 ".v .f{min-width:1.9rem;align-self:flex-start;padding:0;font-size:1.15em;line-height:1.26}"+
 ".ni{align-self:flex-start;font-size:.85em;line-height:1.7}"+
 "}";
+css.textContent+=".ntab[hidden],.nsheet[hidden]{display:none!important}";
+css.textContent+="#splash{background:linear-gradient(160deg,#2A190F 0%,#1E2A18 55%,#0F2A1C 100%)!important}#splash #nlogo{width:104px;height:104px;border-radius:24px;margin:0 0 1.2rem;box-shadow:0 6px 24px rgba(0,0,0,.45)}";
 document.head.appendChild(css);
+var spl=document.getElementById("splash");
+if(spl&&!document.getElementById("nlogo")){var lg=document.createElement("img");lg.id="nlogo";lg.src="icon-192.png";lg.alt="";lg.width=104;lg.height=104;spl.insertBefore(lg,spl.firstChild)}
 var nav=document.createElement("nav");nav.className="ntab";nav.setAttribute("aria-label","Navigation");nav.hidden=true;
 var sheet=document.createElement("div");sheet.className="nsheet";sheet.hidden=true;
 document.body.appendChild(nav);document.body.appendChild(sheet);
@@ -143,6 +151,24 @@ if(unread()>0&&!autoShown){autoShown=true;setTimeout(showNews,600)}
 }
 if(typeof sb!=="undefined"&&sb&&sb.auth&&sb.auth.onAuthStateChange)sb.auth.onAuthStateChange(function(){setTimeout(initExtras,50)});
 setTimeout(initExtras,300);
+function showUpdate(v){
+if($(".nupd"))return;
+var L=T(),d=document.createElement("div");d.className="nupd";d.setAttribute("role","status");
+d.innerHTML='<span>'+L.upd+' ('+esc2(v)+')</span><button type="button" class="go">'+L.refresh+'</button><button type="button" class="x" aria-label="'+L.close+'">✕</button>';
+d.querySelector(".go").onclick=function(){location.reload()};
+d.querySelector(".x").onclick=function(){d.remove()};
+document.body.appendChild(d);
+}
+function checkVersion(){
+if(!exKey||typeof sb==="undefined"||!sb)return;
+sb.from("app_info").select("version,updated_at").eq("id",1).limit(1).then(function(r){
+var v=r&&r.data&&r.data[0];if(!v||!EX.ver)return;
+if(v.version!==EX.ver.version){EX.ver=v;fillExtras();showUpdate(v.version)}
+}).catch(function(){})
+}
+document.addEventListener("visibilitychange",function(){if(!document.hidden)checkVersion()});
+setInterval(checkVersion,600000);
+
 
 sync();
 })();
