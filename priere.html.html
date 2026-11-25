@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sujets de prière · EDSP-Sainte Bible</title>
+<meta name="theme-color" content="#1E2A18">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;1,6..72,400&display=swap" rel="stylesheet">
+<style>
+:root{--page:linear-gradient(160deg,#2A190F 0%,#1E2A18 55%,#0F2A1C 100%);--fg:#E6DDBF;--mut:#BDB394;--gold:#D6B75C;--line:rgba(214,183,92,.38);--ink:#1E1A10;--cm:#2A2514;--cl:#2E1E02;--btn:#26331F;--on:#E6DDBF;--ok:#1F4D2B;--err:#7A1A10;--cardbg:linear-gradient(145deg,#B4AA79,#9D9461);box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:dark}
+*,*::before,*::after{box-sizing:inherit}
+html{background:#1E2A18}html,body{margin:0}
+body{background:var(--page);background-attachment:fixed;color:var(--fg);font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;min-height:100vh}
+main{max-width:40rem;margin:0 auto;padding:1rem .8rem 3rem}
+h1{font:600 1.7rem/1.2 Newsreader,Georgia,serif;margin:.2rem 0 .3rem}
+h2{font:600 1.15rem Newsreader,Georgia,serif;color:var(--cl);margin:0 0 .6rem}
+a.back{display:inline-block;color:var(--gold);padding:.4rem 0}
+p.sub{color:var(--mut);margin:0 0 .9rem}
+.card{background:var(--cardbg);border:1.5px solid #D6B75C;border-radius:14px;padding:1rem;margin:0 0 1rem;color:var(--ink);box-shadow:0 2px 10px rgba(0,0,0,.35)}
+label{display:block;font-weight:600;margin:.8rem 0 .25rem}label:first-of-type{margin-top:0}
+.hint{font-weight:400;color:var(--cm);font-size:.86rem}
+select,textarea{width:100%;font:inherit;color:var(--ink);background:#C4BC8C;border:1px solid rgba(30,26,16,.28);border-radius:6px;padding:.6rem .7rem;min-height:2.75rem}
+textarea{min-height:8rem;resize:vertical;line-height:1.45}
+.chk{display:flex;align-items:flex-start;gap:.6rem;font-weight:400;margin-top:1rem}
+.chk input{width:1.3rem;height:1.3rem;min-height:0;margin:.1rem 0 0;flex:none}
+.cnt{text-align:right;font-size:.82rem;color:var(--cm);margin-top:.2rem}
+button{font:inherit;cursor:pointer;min-height:2.75rem;padding:0 1.1rem;border-radius:6px;border:1px solid rgba(30,26,16,.3);background:#C4BC8C;color:var(--ink)}
+button.p{background:var(--btn);color:var(--on);border:0;font-weight:600;width:100%;margin-top:1rem}
+button.d{background:var(--err);color:#fff;border:0}
+.st{min-height:1.3rem;font-size:.95rem;margin:.6rem 0 0;color:var(--ok)}.st.e{color:var(--err)}
+.pn{color:var(--cm);font-size:.9rem;margin:.3rem 0}
+.it{border-bottom:1px solid rgba(30,26,16,.25);padding:.75rem 0}.it:last-child{border-bottom:0}
+.it p{margin:.3rem 0;white-space:pre-wrap;font-family:Newsreader,Georgia,serif;font-size:1.05rem;line-height:1.5}
+.um{font-size:.86rem;color:var(--cm)}
+.bd{display:inline-block;font-size:.72rem;font-weight:700;border-radius:999px;padding:.05rem .55rem;margin-left:.3rem;background:var(--cl);color:#fff}
+.bd.g{background:var(--ok)}.bd.o{background:#8A5A12}
+.bar{display:flex;gap:.5rem;margin-top:.4rem}.bar button{min-height:2.4rem}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<main>
+<a class="back" href="index.html">← Retour à la Bible</a>
+<h1>Sujets de prière</h1>
+<p class="sub">Déposez ici ce que vous souhaitez confier à la prière.</p>
+<div id="msg" class="card" hidden></div>
+<div id="app" hidden>
+<div class="card">
+<h2>Déposer un sujet</h2>
+<p class="pn">Vos sujets sont confidentiels : seul l’administrateur de l’application peut les lire. Évitez d’y mettre votre numéro de téléphone, votre adresse ou des détails sur une autre personne sans son accord.</p>
+<label for="cat">Catégorie</label>
+<select id="cat">
+<option value="sante">Santé</option>
+<option value="famille">Famille</option>
+<option value="travail">Travail ou études</option>
+<option value="guidance">Décision ou guidance</option>
+<option value="action_de_grace">Action de grâce (remerciement)</option>
+<option value="autre">Autre</option>
+</select>
+<label for="txt">Votre sujet de prière</label>
+<textarea id="txt" maxlength="2000"></textarea>
+<div class="cnt"><span id="n">0</span> / 2000</div>
+<label class="chk" for="anon"><input id="anon" type="checkbox"><span>Rester anonyme <span class="hint">(mon nom n’est pas montré à l’administrateur)</span></span></label>
+<button class="p" id="send" type="button">Déposer mon sujet</button>
+<div class="st" id="st" role="status"></div>
+</div>
+<div class="card">
+<h2>Mes sujets</h2>
+<div id="list"><p class="pn">Chargement…</p></div>
+</div>
+</div>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script>
+/* Même adresse et même clé publique (anon) que index.html. Chacun ne voit que ses propres sujets (protégé par la base de données). */
+const SB_URL="https://wkgbhmrfhvcljtvbocxu.supabase.co", SB_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndrZ2JobXJmaHZjbGp0dmJvY3h1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMyMjUxMDYsImV4cCI6MjEwODgwMTEwNn0.vOMkUz5xHmfgO3ymDLZqSwYr7XIBDBetNUNSRp5exOs";
+const sb=supabase.createClient(SB_URL,SB_KEY);
+const $=s=>document.querySelector(s);
+const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const CAT={sante:"Santé",famille:"Famille",travail:"Travail ou études",guidance:"Décision ou guidance",action_de_grace:"Action de grâce",autre:"Autre"};
+const STA={recu:["Reçu",""],en_priere:["En prière","o"],exauce:["Exaucé","g"]};
+const dt=d=>new Date(d).toLocaleDateString("fr-FR",{day:"numeric",month:"long",year:"numeric"});
+let tmr;
+function status(m,e){const x=$("#st");x.textContent=m;x.className="st"+(e?" e":"");clearTimeout(tmr);if(!e)tmr=setTimeout(()=>{x.textContent=""},4000)}
+async function load(){const l=$("#list");
+const {data,error}=await sb.from("sujets_priere").select("id,categorie,texte,anonyme,statut,created_at").order("created_at",{ascending:false});
+if(error){l.innerHTML='<p class="pn">Liste indisponible pour le moment.</p>';return}
+l.innerHTML=(data||[]).map(s=>`<div class="it"><b>${esc(CAT[s.categorie]||s.categorie)}</b><span class="bd ${STA[s.statut][1]}">${STA[s.statut][0]}</span>${s.anonyme?'<span class="bd">Anonyme</span>':""}<div class="um">${dt(s.created_at)}</div><p>${esc(s.texte)}</p><div class="bar"><button data-id="${s.id}" type="button">Supprimer</button></div></div>`).join("")||'<p class="pn">Vous n’avez encore déposé aucun sujet.</p>'}
+$("#txt").addEventListener("input",e=>{$("#n").textContent=e.target.value.length});
+$("#send").onclick=async()=>{const t=$("#txt").value.trim();
+if(t.length<3){status("Écrivez votre sujet de prière.",1);return}
+const b=$("#send");b.disabled=true;
+const {error}=await sb.from("sujets_priere").insert({categorie:$("#cat").value,texte:t,anonyme:$("#anon").checked});
+b.disabled=false;
+if(error){status(/Limite/.test(error.message||"")?"Vous avez atteint la limite de 5 sujets par jour. Réessayez demain.":"Le dépôt a échoué. Réessayez dans un instant.",1);return}
+$("#txt").value="";$("#n").textContent="0";$("#anon").checked=false;status("Merci, votre sujet a bien été reçu.");load()};
+$("#list").addEventListener("click",async e=>{const b=e.target.closest("button[data-id]");if(!b)return;
+if(!b.dataset.s){b.dataset.s="1";b.textContent="Confirmer ?";b.classList.add("d");setTimeout(()=>{if(b.isConnected){delete b.dataset.s;b.textContent="Supprimer";b.classList.remove("d")}},4000);return}
+const {error}=await sb.from("sujets_priere").delete().eq("id",b.dataset.id);if(error){status("La suppression a échoué.",1);return}load()});
+function say(h){const m=$("#msg");m.innerHTML=h;m.hidden=false}
+(async()=>{
+const {data:{session}}=await sb.auth.getSession();
+if(!session){say('<h2>Connexion nécessaire</h2><p class="pn">Connectez-vous d’abord dans l’application, puis revenez ici.</p><a class="back" style="color:var(--cl)" href="index.html">Aller à la connexion</a>');return}
+$("#app").hidden=false;load()})();
+</script>
+</body>
+</html>

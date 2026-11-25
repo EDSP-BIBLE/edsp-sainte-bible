@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Espace super admin · EDSP-Sainte Bible</title>
+<meta name="theme-color" content="#1E2A18">
+<meta name="robots" content="noindex">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;1,6..72,400&display=swap" rel="stylesheet">
+<style>
+:root{--page:linear-gradient(160deg,#2A190F 0%,#1E2A18 55%,#0F2A1C 100%);--fg:#E6DDBF;--mut:#BDB394;--gold:#D6B75C;--line:rgba(214,183,92,.38);--ink:#1E1A10;--cm:#2A2514;--cl:#2E1E02;--btn:#26331F;--on:#E6DDBF;--ok:#1F4D2B;--err:#7A1A10;--cardbg:linear-gradient(145deg,#B4AA79,#9D9461);box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:dark}
+*,*::before,*::after{box-sizing:inherit}
+html{background:#1E2A18}html,body{margin:0}
+body{background:var(--page);background-attachment:fixed;color:var(--fg);font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;min-height:100vh}
+main{max-width:46rem;margin:0 auto;padding:1rem .8rem 3rem}
+h1{font:600 1.7rem/1.2 Newsreader,Georgia,serif;margin:.2rem 0 .3rem}
+h2{font:600 1.15rem Newsreader,Georgia,serif;color:var(--cl);margin:0 0 .6rem}
+a.back{display:inline-block;color:var(--gold);padding:.4rem 0}
+p.sub{color:var(--mut);margin:0 0 .8rem}
+.tabs{display:grid;grid-template-columns:repeat(5,1fr);gap:.3rem;margin:.6rem 0 1rem}
+.tabs button{min-height:2.8rem;padding:0 .1rem;border:1px solid var(--line);border-radius:8px;background:rgba(20,13,8,.5);color:var(--fg);font:600 .74rem/1.15 system-ui,sans-serif}
+.tabs button[aria-selected=true]{background:var(--gold);color:var(--ink);border-color:var(--gold)}
+.card{background:var(--cardbg);border:1.5px solid #D6B75C;border-radius:14px;padding:1rem;margin:0 0 1rem;color:var(--ink);box-shadow:0 2px 10px rgba(0,0,0,.35)}
+label{display:block;font-weight:600;margin:.8rem 0 .25rem}label:first-child{margin-top:0}
+.hint{font-weight:400;color:var(--cm);font-size:.86rem}
+input,textarea,select{width:100%;font:inherit;color:var(--ink);background:#C4BC8C;border:1px solid rgba(30,26,16,.28);border-radius:6px;padding:.6rem .7rem;min-height:2.75rem}
+textarea{min-height:5.5rem;resize:vertical;line-height:1.45}
+button{font:inherit;cursor:pointer;min-height:2.6rem;padding:0 1rem;border-radius:6px;border:1px solid rgba(30,26,16,.3);background:#C4BC8C;color:var(--ink)}
+button.p{background:var(--btn);color:var(--on);border:0;font-weight:600}
+button.d{background:var(--err);color:#fff;border:0}
+button.x{border:0;background:none;color:var(--cm);text-decoration:underline;padding:0 .4rem}
+.bar{display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;margin-top:.7rem}
+.kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:.6rem}
+.kpi{background:rgba(30,26,16,.1);border-radius:10px;padding:.7rem .8rem}
+.kpi b{display:block;font:600 1.7rem/1.1 Newsreader,Georgia,serif;color:var(--cl)}
+.kpi span{font-size:.84rem;color:var(--cm)}
+.br{display:grid;grid-template-columns:7.5rem 1fr 2.2rem;gap:.5rem;align-items:center;margin:.3rem 0;font-size:.9rem}
+.br i{display:block;height:.8rem;border-radius:4px;background:var(--btn);min-width:2px}
+.br em{font-style:normal;text-align:right;font-weight:600}
+.br span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.days{display:flex;align-items:flex-end;gap:2px;height:5.5rem;margin-top:.4rem}
+.days i{flex:1;background:var(--btn);border-radius:2px 2px 0 0;min-height:2px}
+.axis{display:flex;justify-content:space-between;font-size:.76rem;color:var(--cm)}
+.u{border-bottom:1px solid rgba(30,26,16,.25);padding:.7rem 0}
+.u:last-child{border-bottom:0}
+.u b{font-size:1.02rem}.um{font-size:.88rem;color:var(--cm);word-break:break-word}
+.bd{display:inline-block;font-size:.72rem;font-weight:700;border-radius:999px;padding:.05rem .5rem;margin-left:.3rem;background:var(--cl);color:#fff}
+.bd.r{background:var(--err)}.bd.g{background:var(--ok)}
+.st{min-height:1.3rem;font-size:.92rem;margin:.5rem 0 0;color:var(--ok)}.st.e{color:var(--err)}
+.pn{color:var(--cm);font-size:.92rem;margin:.3rem 0}
+.chk{display:flex;align-items:flex-start;gap:.6rem;font-weight:400;margin-top:.9rem}.chk input{width:1.3rem;height:1.3rem;min-height:0;flex:none;margin:.1rem 0 0}
+.an{border-bottom:1px solid rgba(30,26,16,.25);padding:.7rem 0}.an:last-child{border-bottom:0}
+.an p{margin:.2rem 0;white-space:pre-wrap;color:var(--ink)}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<main>
+<a class="back" href="index.html">← Retour à la Bible</a>
+<h1>Espace super admin</h1>
+<p class="sub">Réservé au propriétaire de l’application.</p>
+<div id="msg" class="card" hidden></div>
+<div id="app" hidden>
+<div class="tabs" role="tablist">
+<button role="tab" data-t="dash" aria-selected="true">Chiffres</button>
+<button role="tab" data-t="users" aria-selected="false">Inscrits</button>
+<button role="tab" data-t="news" aria-selected="false">Annonces</button>
+<button role="tab" data-t="cont" aria-selected="false">Contenus</button>
+<button role="tab" data-t="pray" aria-selected="false" id="tpray">Prières</button>
+</div>
+<div id="pane"></div>
+</div>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script>
+/* Même adresse et même clé publique (anon) que index.html. L'accès aux données est protégé côté base de données. */
+const SB_URL="https://wkgbhmrfhvcljtvbocxu.supabase.co", SB_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndrZ2JobXJmaHZjbGp0dmJvY3h1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMyMjUxMDYsImV4cCI6MjEwODgwMTEwNn0.vOMkUz5xHmfgO3ymDLZqSwYr7XIBDBetNUNSRp5exOs";
+const sb=supabase.createClient(SB_URL,SB_KEY);
+const $=s=>document.querySelector(s);
+const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const flag=c=>/^[A-Z]{2}$/.test(c||"")?String.fromCodePoint(...[...c].map(x=>127397+x.charCodeAt(0))):"🌍";
+let DN;try{DN=new Intl.DisplayNames(["fr"],{type:"region",fallback:"code"})}catch(e){}
+const cn=c=>(!c||c==="?")?"Non indiqué":((DN&&DN.of(c))||c);
+const dt=(d,l)=>d?new Date(d).toLocaleDateString("fr-FR",l?{day:"numeric",month:"short"}:{day:"numeric",month:"short",year:"numeric"}):"jamais";
+async function rpc(n,a){const {data,error}=await sb.rpc(n,a||{});if(error)throw error;return data}
+let T="dash",tmr;
+function status(m,e){const x=$("#st");if(!x)return;x.textContent=m;x.className="st"+(e?" e":"");clearTimeout(tmr);if(!e)tmr=setTimeout(()=>{x.textContent=""},3000)}
+const sure=(b,fn)=>{if(b.dataset.s){fn();return}const o=b.textContent;b.dataset.s="1";b.textContent="Confirmer ?";b.classList.add("d");setTimeout(()=>{if(b.isConnected){delete b.dataset.s;b.textContent=o;b.classList.remove("d")}},4000)};
+
+/* ---------- Tableau de bord ---------- */
+const bars=(items,lab)=>{const mx=Math.max(1,...items.map(i=>i.n));return items.map(i=>`<div class="br"><span>${lab(i)}</span><i style="width:${Math.max(2,Math.round(i.n/mx*100))}%"></i><em>${i.n}</em></div>`).join("")||'<p class="pn">Aucune donnée.</p>'};
+async function dash(){const p=$("#pane");p.innerHTML='<p class="pn">Chargement…</p>';
+let s;try{s=await rpc("admin_stats")}catch(e){p.innerHTML='<p class="pn">Statistiques indisponibles pour le moment.</p>';return}
+const ag=s.ages,sx=s.sexe,mxj=Math.max(1,...s.par_jour.map(d=>d.n));
+p.innerHTML=`<div class="card"><h2>Inscrits</h2><div class="kpis"><div class="kpi"><b>${s.total}</b><span>Inscrits au total</span></div><div class="kpi"><b>${s.nouveaux_7j}</b><span>Nouveaux (7 jours)</span></div><div class="kpi"><b>${s.nouveaux_30j}</b><span>Nouveaux (30 jours)</span></div><div class="kpi"><b>${s.actifs_7j}</b><span>Connectés (7 jours)</span></div></div>
+<h2 style="margin-top:1rem">Inscriptions des 30 derniers jours</h2><div class="days" role="img" aria-label="Inscriptions par jour">${s.par_jour.map(d=>`<i style="height:${Math.max(2,Math.round(d.n/mxj*100))}%" title="${dt(d.jour,1)} : ${d.n}"></i>`).join("")}</div><div class="axis"><span>${dt(s.par_jour[0].jour,1)}</span><span>aujourd’hui</span></div></div>
+<div class="card"><h2>Pays</h2>${bars(s.pays,i=>flag(i.code)+" "+esc(cn(i.code)))}</div>
+<div class="card"><h2>Âges</h2>${bars([{l:"Moins de 18 ans",n:ag.moins_18},{l:"18 à 24 ans",n:ag.a18_24},{l:"25 à 34 ans",n:ag.a25_34},{l:"35 à 44 ans",n:ag.a35_44},{l:"45 à 54 ans",n:ag.a45_54},{l:"55 ans et plus",n:ag.a55_plus},{l:"Non indiqué",n:ag.inconnu}].filter(x=>x.n>0),i=>i.l)}<h2 style="margin-top:1rem">Sexe</h2>${bars([{l:"Hommes",n:sx.M},{l:"Femmes",n:sx.F},{l:"Non précisé",n:sx.N},{l:"Non indiqué",n:sx.inconnu}].filter(x=>x.n>0),i=>i.l)}</div>
+<div class="card"><h2>Utilisation</h2><div class="kpis"><div class="kpi"><b>${s.sermons}</b><span>Sermons</span></div><div class="kpi"><b>${s.notes}</b><span>Notes</span></div><div class="kpi"><b>${s.surlignages}</b><span>Surlignages</span></div><div class="kpi"><b>${s.favoris}</b><span>Favoris</span></div></div>${s.bloques?`<p class="pn" style="margin-top:.8rem">${s.bloques} compte(s) bloqué(s).</p>`:""}</div>`}
+
+/* ---------- Inscrits ---------- */
+let U={q:"",rows:[],total:0};
+async function usersLoad(more){const l=$("#ulist");if(!l)return;
+try{const r=await rpc("admin_users",{p_search:U.q,p_limit:50,p_offset:more?U.rows.length:0});U.rows=more?U.rows.concat(r):r;U.total=r.length?+r[0].total:0}catch(e){l.innerHTML='<p class="pn">Liste indisponible pour le moment.</p>';return}
+usersDraw()}
+function usersDraw(){const l=$("#ulist");
+l.innerHTML=(U.rows.length?U.rows.map(u=>`<div class="u"><b>${esc(u.pseudo||"Sans nom")}</b>${u.est_super_admin?'<span class="bd g">Super admin</span>':""}${u.bloque?'<span class="bd r">Bloqué</span>':""}${u.confirme?"":'<span class="bd">E-mail non confirmé</span>'}<div class="um">${esc(u.email||"")}</div><div class="um">${flag(u.pays)} ${esc(cn(u.pays))} · ${u.age!=null?u.age+" ans":"âge non indiqué"} · ${({M:"homme",F:"femme",N:"sexe non précisé"})[u.sexe]||"sexe non indiqué"}</div><div class="um">Inscrit le ${dt(u.cree)} · dernière connexion : ${dt(u.derniere_connexion)}</div>${u.est_super_admin?"":`<div class="bar"><button data-a="ban" data-id="${u.id}" data-b="${u.bloque?0:1}">${u.bloque?"Débloquer":"Bloquer"}</button><button data-a="del" data-id="${u.id}">Supprimer le compte</button></div>`}</div>`).join(""):'<p class="pn">Aucun inscrit trouvé.</p>')+(U.rows.length<U.total?'<div class="bar"><button id="umore">Voir plus</button></div>':"");
+$("#ucount").textContent=U.total+" inscrit"+(U.total>1?"s":"")}
+function users(){$("#pane").innerHTML=`<div class="card"><h2>Inscrits <span id="ucount" class="hint"></span></h2><label for="uq">Chercher (nom ou e-mail)</label><input id="uq" type="search" value="${esc(U.q)}"><div class="st" id="st" role="status"></div><div id="ulist"><p class="pn">Chargement…</p></div></div>`;
+let t;$("#uq").oninput=e=>{clearTimeout(t);t=setTimeout(()=>{U.q=e.target.value.trim();usersLoad(false)},400)};usersLoad(false)}
+
+/* ---------- Annonces ---------- */
+async function news(){const p=$("#pane");
+p.innerHTML=`<div class="card"><h2>Version de l’application</h2><p class="pn" id="vcur">Chargement…</p><p class="pn">Après avoir envoyé de nouveaux fichiers sur GitHub, augmentez le numéro ici (par exemple de 1.0.0 à 1.1.0).</p><label for="vv">Numéro de version <span class="hint">(ex. 1.1.0)</span></label><input id="vv" maxlength="11" inputmode="decimal" autocomplete="off"><label for="vn">Ce qui change</label><textarea id="vn" maxlength="2000"></textarea><label class="chk" for="vp"><input id="vp" type="checkbox" checked><span>Publier aussi une annonce aux utilisateurs</span></label><div class="bar"><button class="p" id="vsave">Enregistrer la version</button></div><div class="st" id="vst" role="status"></div></div><div class="card"><h2>Nouvelle annonce</h2><p class="pn">Elle s’affiche à tous les utilisateurs connectés, dans « Nouveautés ».</p><label for="at">Titre</label><input id="at" maxlength="150"><label for="ac">Message</label><textarea id="ac" maxlength="4000"></textarea><div class="bar"><button class="p" id="apub">Publier l’annonce</button></div><div class="st" id="st" role="status"></div></div><div class="card"><h2>Annonces publiées</h2><div id="alist"><p class="pn">Chargement…</p></div></div>`;
+verLoad();
+$("#vsave").onclick=async()=>{const v=$("#vv").value.trim(),n=$("#vn").value.trim(),vs=$("#vst"),say=(m,e)=>{vs.textContent=m;vs.className="st"+(e?" e":"")};
+if(!/^\d{1,3}\.\d{1,3}(\.\d{1,3})?$/.test(v)){say("Écrivez un numéro comme 1.1.0.",1);return}
+const {error}=await sb.from("app_info").upsert({id:1,version:v,notes:n,updated_at:new Date().toISOString()},{onConflict:"id"});
+if(error){say("L’enregistrement a échoué. Réessayez.",1);return}
+if($("#vp").checked){const r=await sb.from("annonces").insert({titre:"Mise à jour "+v,contenu:n||"Une nouvelle version de l’application est disponible.",publie:true});if(r.error){say("Version enregistrée, mais l’annonce n’a pas pu être publiée.",1);verLoad();return}}
+say("Version enregistrée"+($("#vp").checked?" et annonce publiée.":"."));verLoad();newsList()};
+$("#apub").onclick=async()=>{const t=$("#at").value.trim(),c=$("#ac").value.trim();if(!t||!c){status("Écrivez un titre et un message.",1);return}
+const {error}=await sb.from("annonces").insert({titre:t,contenu:c,publie:true});if(error){status("La publication a échoué. Réessayez.",1);return}
+$("#at").value="";$("#ac").value="";status("Annonce publiée.");newsList()};newsList()}
+async function verLoad(){const {data}=await sb.from("app_info").select("version,notes,updated_at").eq("id",1).limit(1);const v=(data||[])[0],c=$("#vcur");if(!c)return;
+if(v){c.textContent="Version actuelle : "+v.version+" · mise à jour le "+dt(v.updated_at);if(!$("#vv").value)$("#vv").value=v.version}else c.textContent="Aucune version enregistrée."}
+async function newsList(){const l=$("#alist");if(!l)return;
+const {data,error}=await sb.from("annonces").select("id,titre,contenu,publie,created_at").order("created_at",{ascending:false});
+if(error){l.innerHTML='<p class="pn">Liste indisponible.</p>';return}
+l.innerHTML=(data||[]).map(a=>`<div class="an"><b>${esc(a.titre)}</b>${a.publie?"":'<span class="bd r">Masquée</span>'}<div class="um">${dt(a.created_at)}</div><p>${esc(a.contenu)}</p><div class="bar"><button data-a="hide" data-id="${a.id}" data-p="${a.publie?0:1}">${a.publie?"Masquer":"Publier de nouveau"}</button><button data-a="delann" data-id="${a.id}">Supprimer</button></div></div>`).join("")||'<p class="pn">Aucune annonce pour le moment.</p>'}
+
+/* ---------- Contenus (introductions des livres, leçons du cours) ---------- */
+let BASE=null,OVR={},BKS=[],CK={type:"intro",key:"GEN"};
+async function loadBase(){if(BASE)return;
+const t=await (await fetch("index.html",{cache:"no-store"})).text();
+const grab=n=>{const k="const "+n+"=",i=t.indexOf(k);if(i<0)throw new Error(n);const j=t.indexOf("\nconst ",i+k.length);return new Function("return "+t.slice(i+k.length,j).trim().replace(/;\s*$/,""))()};
+BASE={intro:grab("INTRO"),cours:grab("COURS")};
+const [a,b]=await Promise.all([sb.from("livres").select("code,ordre,nom_fr").order("ordre"),sb.from("contenus").select("cle,donnees")]);
+BKS=a.data||[];OVR=Object.fromEntries((b.data||[]).map(r=>[r.cle,r.donnees]))}
+const paras=s=>s.split(/\n\s*\n/).map(x=>x.trim()).filter(Boolean),lines=s=>s.split("\n").map(x=>x.trim()).filter(Boolean);
+async function cont(){const p=$("#pane");p.innerHTML='<p class="pn">Chargement…</p>';
+try{await loadBase()}catch(e){p.innerHTML='<div class="card"><p class="pn">Impossible de lire le contenu d’origine de l’application pour le moment.</p></div>';return}
+contDraw()}
+function contDraw(){const p=$("#pane"),isI=CK.type==="intro",nb=BASE.cours.length;
+const bname=c=>((BKS.find(b=>b.code===c)||{}).nom_fr)||c;
+let opts;if(isI){opts=Object.keys(BASE.intro).sort((a,b)=>((BKS.find(x=>x.code===a)||{ordre:99}).ordre)-((BKS.find(x=>x.code===b)||{ordre:99}).ordre)).map(c=>`<option value="${c}" ${c===CK.key?"selected":""}>${esc(bname(c))}${OVR["intro:"+c]?" (modifiée)":""}</option>`).join("")}
+else{const extra=Object.keys(OVR).filter(k=>k.startsWith("cours:")).map(k=>+k.slice(6)).filter(i=>i>=nb);const n=Math.max(nb,...extra.map(i=>i+1));opts=Array.from({length:n},(_,i)=>{const o=Object.assign({},BASE.cours[i]||{},OVR["cours:"+i]||{});return `<option value="${i}" ${String(i)===String(CK.key)?"selected":""}>${i+1}. ${esc(o.t||"Nouvelle leçon")}${OVR["cours:"+i]?" (modifiée)":""}</option>`}).join("")+`<option value="new">+ Ajouter une leçon</option>`}
+const key=(isI?"intro:":"cours:")+CK.key,ov=OVR[key];let form="";
+if(isI){const o=Object.assign({},BASE.intro[CK.key]||{},ov||{});form=[["r","Résumé"],["a","Auteur"],["e","Époque"],["t","Thèmes"],["p","Plan"]].map(([k,l])=>`<label for="f_${k}">${l}</label><textarea id="f_${k}" class="s">${esc(o[k]||"")}</textarea>`).join("")}
+else{const isNew=CK.key==="new"||+CK.key>=nb,o=Object.assign({},BASE.cours[isNew?-1:+CK.key]||{},ov||{});
+form=`<label for="f_t">Titre de la leçon</label><input id="f_t" value="${esc(o.t||"")}"><label for="f_p">Paragraphes du début <span class="hint">(laissez une ligne vide entre deux paragraphes)</span></label><textarea id="f_p">${esc((o.p||[]).join("\n\n"))}</textarea><label for="f_u">Liste à puces <span class="hint">(un point par ligne)</span></label><textarea id="f_u">${esc((o.u||[]).join("\n"))}</textarea><label for="f_p2">Paragraphes après la liste</label><textarea id="f_p2">${esc((o.p2||[]).join("\n\n"))}</textarea><label for="f_d">Vocabulaire <span class="hint">(un mot par ligne : Mot | Définition)</span></label><textarea id="f_d">${esc((o.d||[]).map(x=>x[0]+" | "+x[1]).join("\n"))}</textarea>`}
+p.innerHTML=`<div class="card"><h2>Modifier un contenu</h2><p class="pn">Les modifications apparaissent dans l’application pour tous les utilisateurs, à leur prochaine ouverture. Les introductions sont en français.</p><label for="ct">Que modifier ?</label><select id="ct"><option value="intro" ${isI?"selected":""}>Introduction d’un livre</option><option value="cours" ${isI?"":"selected"}>Leçon du cours</option></select><label for="ck">${isI?"Livre":"Leçon"}</label><select id="ck">${opts}</select></div><div class="card" id="cf">${form}<div class="bar"><button class="p" id="csave">Enregistrer</button>${ov?'<button id="creset">Revenir au texte d’origine</button>':""}</div><div class="st" id="st" role="status"></div></div>`;
+$("#ct").onchange=e=>{CK={type:e.target.value,key:e.target.value==="intro"?"GEN":"0"};contDraw()};
+$("#ck").onchange=e=>{CK.key=e.target.value==="new"?String(Math.max(BASE.cours.length,...Object.keys(OVR).filter(k=>k.startsWith("cours:")).map(k=>+k.slice(6)+1))):e.target.value;contDraw()};
+$("#csave").onclick=async()=>{let d;
+if(isI){d={};for(const k of["r","a","e","t","p"])d[k]=$("#f_"+k).value.trim();if(!d.r){status("Le résumé ne peut pas être vide.",1);return}}
+else{const t=$("#f_t").value.trim();if(!t){status("Le titre ne peut pas être vide.",1);return}
+d={t,p:paras($("#f_p").value),u:lines($("#f_u").value),p2:paras($("#f_p2").value),d:lines($("#f_d").value).map(l=>{const i=l.indexOf("|");return i<0?[l,""]:[l.slice(0,i).trim(),l.slice(i+1).trim()]})}}
+const {error}=await sb.from("contenus").upsert({cle:key,donnees:d,updated_at:new Date().toISOString()},{onConflict:"cle"});
+if(error){status("L’enregistrement a échoué. Réessayez.",1);return}OVR[key]=d;status("Enregistré. Visible dans l’application à la prochaine ouverture.");setTimeout(contDraw,900)};
+const rs=$("#creset");if(rs)rs.onclick=()=>sure(rs,async()=>{const {error}=await sb.from("contenus").delete().eq("cle",key);if(error){status("La suppression a échoué.",1);return}delete OVR[key];contDraw()})}
+
+
+/* ---------- Sujets de prière ---------- */
+const PCAT={sante:"Santé",famille:"Famille",travail:"Travail ou études",guidance:"Décision ou guidance",action_de_grace:"Action de grâce",autre:"Autre"};
+const PSTA={recu:["Reçu","r"],en_priere:["En prière",""],exauce:["Exaucé","g"]};
+let PR={f:"recu",rows:[],total:0};
+async function prayBadge(){try{const r=await rpc("admin_prieres",{p_statut:"recu",p_limit:1,p_offset:0});const n=r.length?+r[0].total:0;$("#tpray").textContent=n?"Prières ("+n+")":"Prières"}catch(e){}}
+async function prayLoad(more){const l=$("#plist");if(!l)return;
+try{const r=await rpc("admin_prieres",{p_statut:PR.f==="tous"?null:PR.f,p_limit:30,p_offset:more?PR.rows.length:0});PR.rows=more?PR.rows.concat(r):r;PR.total=r.length?+r[0].total:0}catch(e){l.innerHTML='<p class="pn">Liste indisponible pour le moment.</p>';return}
+l.innerHTML=(PR.rows.length?PR.rows.map(s=>`<div class="an"><b>${esc(PCAT[s.categorie]||s.categorie)}</b><span class="bd ${PSTA[s.statut][1]}">${PSTA[s.statut][0]}</span><div class="um">${dt(s.cree)} · ${s.pseudo?esc(s.pseudo)+(s.pays?" "+flag(s.pays):""):"Anonyme"}</div><p>${esc(s.texte)}</p><div class="bar">${["recu","en_priere","exauce"].filter(x=>x!==s.statut).map(x=>`<button data-a="pst" data-id="${s.id}" data-s="${x}">${({recu:"Remettre à reçu",en_priere:"En prière",exauce:"Exaucé"})[x]}</button>`).join("")}<button data-a="delpr" data-id="${s.id}">Supprimer</button></div></div>`).join(""):'<p class="pn">Aucun sujet dans cette liste.</p>')+(PR.rows.length<PR.total?'<div class="bar"><button id="pmore">Voir plus</button></div>':"");
+$("#pcount").textContent=PR.total+" sujet"+(PR.total>1?"s":"")}
+function pray(){$("#pane").innerHTML=`<div class="card"><h2>Sujets de prière <span id="pcount" class="hint"></span></h2><p class="pn">Les personnes qui ont choisi l’anonymat apparaissent comme « Anonyme ».</p><label for="pf">Afficher</label><select id="pf"><option value="recu">Reçus (pas encore pris en prière)</option><option value="en_priere">En prière</option><option value="exauce">Exaucés</option><option value="tous">Tous</option></select><div class="st" id="st" role="status"></div><div id="plist"><p class="pn">Chargement…</p></div></div>`;
+$("#pf").value=PR.f;$("#pf").onchange=e=>{PR.f=e.target.value;prayLoad(false)};prayLoad(false)}
+
+/* ---------- Actions et navigation ---------- */
+document.addEventListener("click",async e=>{const b=e.target.closest("button");if(!b)return;
+if(b.dataset.t){T=b.dataset.t;document.querySelectorAll(".tabs button").forEach(x=>x.setAttribute("aria-selected",String(x===b)));({dash,users,news,cont,pray})[T]();return}
+if(b.id==="umore"){usersLoad(true);return}
+if(b.id==="pmore"){prayLoad(true);return}
+const a=b.dataset.a;if(!a)return;
+if(a==="ban"){const bl=b.dataset.b==="1";if(bl)sure(b,async()=>{try{await rpc("admin_bloquer",{p_user:b.dataset.id,p_bloquer:true});status("Compte bloqué.");usersLoad(false)}catch(x){status("L’action a échoué.",1)}});else{try{await rpc("admin_bloquer",{p_user:b.dataset.id,p_bloquer:false});status("Compte débloqué.");usersLoad(false)}catch(x){status("L’action a échoué.",1)}}}
+else if(a==="del")sure(b,async()=>{try{await rpc("admin_supprimer",{p_user:b.dataset.id});status("Compte supprimé.");usersLoad(false)}catch(x){status("La suppression a échoué.",1)}});
+else if(a==="pst"){try{await rpc("admin_priere_statut",{p_id:+b.dataset.id,p_statut:b.dataset.s});prayLoad(false);prayBadge()}catch(x){status("L’action a échoué.",1)}}
+else if(a==="delpr")sure(b,async()=>{try{await rpc("admin_priere_supprimer",{p_id:+b.dataset.id});prayLoad(false);prayBadge()}catch(x){status("La suppression a échoué.",1)}});
+else if(a==="hide"){const {error}=await sb.from("annonces").update({publie:b.dataset.p==="1"}).eq("id",b.dataset.id);if(!error)newsList()}
+else if(a==="delann")sure(b,async()=>{const {error}=await sb.from("annonces").delete().eq("id",b.dataset.id);if(!error)newsList()})});
+function say(h){const m=$("#msg");m.innerHTML=h;m.hidden=false}
+(async()=>{
+const {data:{session}}=await sb.auth.getSession();
+if(!session){say('<h2>Connexion nécessaire</h2><p class="pn">Connectez-vous d’abord dans l’application, puis revenez ici.</p><a class="back" style="color:var(--cl)" href="index.html">Aller à la connexion</a>');return}
+let ok=false;try{ok=await rpc("est_admin")===true}catch(e){}
+if(!ok){say('<h2>Accès réservé</h2><p class="pn">Ce compte n’est pas super admin.</p><a class="back" style="color:var(--cl)" href="index.html">Retour à la Bible</a>');return}
+$("#app").hidden=false;dash();prayBadge()})();
+</script>
+</body>
+</html>
