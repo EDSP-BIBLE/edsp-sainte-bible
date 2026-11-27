@@ -1,7 +1,7 @@
 /* EDSP-Sainte Bible : barre d'onglets en bas (5 entrées) + menu « Plus » */
 (function(){
-var FR={lire:"Lire",contenu:"Contenu",cours:"Cours",sermon:"Sermon",plus:"Plus",notes:"Mes notes et surlignages",taille:"Taille du texte",theme:"Changer le thème",lang:"English",out:"Se déconnecter",news:"Nouveautés",admin:"Espace super admin",close:"Fermer",priere:"Sujets de prière",ver:"Version",upd:"Une nouvelle version est disponible.",refresh:"Actualiser",pal:"Couleurs",p_logo:"Logo",p_ocean:"Océan",p_aurore:"Aurore",p_foret:"Forêt",p_classic:"Classique"};
-var EN={lire:"Read",contenu:"Contents",cours:"Course",sermon:"Sermon",plus:"More",notes:"My notes and highlights",taille:"Text size",theme:"Switch theme",lang:"Français",out:"Log out",news:"What’s new",admin:"Super admin area",close:"Close",priere:"Prayer requests",ver:"Version",upd:"A new version is available.",refresh:"Refresh",pal:"Colours",p_logo:"Logo",p_ocean:"Ocean",p_aurore:"Dawn",p_foret:"Forest",p_classic:"Classic"};
+var FR={lire:"Lire",contenu:"Contenu",cours:"Cours",sermon:"Sermon",plus:"Plus",notes:"Mes notes et surlignages",taille:"Taille du texte",theme:"Changer le thème",lang:"English",out:"Se déconnecter",news:"Nouveautés",admin:"Espace super admin",close:"Fermer",priere:"Sujets de prière",plan:"Plans de lecture",ver:"Version",upd:"Une nouvelle version est disponible.",refresh:"Actualiser",pal:"Couleurs",p_logo:"Logo",p_ocean:"Océan",p_aurore:"Aurore",p_foret:"Forêt",p_classic:"Classique"};
+var EN={lire:"Read",contenu:"Contents",cours:"Course",sermon:"Sermon",plus:"More",notes:"My notes and highlights",taille:"Text size",theme:"Switch theme",lang:"Français",out:"Log out",news:"What’s new",admin:"Super admin area",close:"Close",priere:"Prayer requests",plan:"Reading plans",ver:"Version",upd:"A new version is available.",refresh:"Refresh",pal:"Colours",p_logo:"Logo",p_ocean:"Ocean",p_aurore:"Dawn",p_foret:"Forest",p_classic:"Classic"};
 function svg(p){return '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+p+'</svg>'}
 var IC={
 lire:'<path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H11v15H5.5A1.5 1.5 0 0 0 4 20.5z"/><path d="M20 5.5A1.5 1.5 0 0 0 18.5 4H13v15h5.5a1.5 1.5 0 0 1 1.5 1.5z"/>',
@@ -74,7 +74,7 @@ var sig="";
 function build(){
 var L=T(),k=["lire","contenu","cours","sermon","plus"];
 nav.innerHTML=k.map(function(x){return '<button type="button" data-t="'+x+'"'+(x==="plus"?' aria-haspopup="true" aria-expanded="false"':'')+'>'+svg(IC[x])+'<span>'+L[x]+'</span></button>'}).join("");
-sheet.innerHTML='<div id="nx"></div><button type="button" class="r" data-a="priere">'+L.priere+'</button><button type="button" class="r" data-a="notes">'+L.notes+'</button><div class="r"><span>'+L.taille+'</span><span class="z"><button type="button" data-a="sm" aria-label="A−">A−</button><button type="button" data-a="bg" aria-label="A+">A+</button></span></div><button type="button" class="r" data-a="th">'+L.theme+'</button>'+palRow(L)+'<button type="button" class="r" data-a="lg">'+L.lang+'</button><hr><button type="button" class="r" data-a="out">'+L.out+'</button><div class="vf" id="nv"></div>';
+sheet.innerHTML='<div id="nx"></div><button type="button" class="r" data-a="plan">'+L.plan+'</button><button type="button" class="r" data-a="priere">'+L.priere+'</button><button type="button" class="r" data-a="notes">'+L.notes+'</button><div class="r"><span>'+L.taille+'</span><span class="z"><button type="button" data-a="sm" aria-label="A−">A−</button><button type="button" data-a="bg" aria-label="A+">A+</button></span></div><button type="button" class="r" data-a="th">'+L.theme+'</button>'+palRow(L)+'<button type="button" class="r" data-a="lg">'+L.lang+'</button><hr><button type="button" class="r" data-a="out">'+L.out+'</button><div class="vf" id="nv"></div>';
 fillExtras();
 }
 function active(){return $("#tcb")?1:$("#crb")?2:$("#nvb")?4:0}
@@ -91,7 +91,7 @@ if(t==="plus"){var o=sheet.hidden;sheet.hidden=!o;b.setAttribute("aria-expanded"
 closeSheet();
 if(t==="lire"){var r=$("#tcb")||$("#crb")||$("#nvb")||$("#bk0");if(r)r.click();else scrollTo(0,0)}
 else if(t==="contenu"){if(!$("#tcb"))click("#tc");else scrollTo(0,0)}
-else if(t==="cours"){if(!$("#crb"))click("#cr");else scrollTo(0,0)}
+else if(t==="cours"){if(!$("#crb"))click("#cr");else if($("#crl"))click("#crl");else scrollTo(0,0)}
 else if(t==="sermon"){location.href="sermon.html"}});
 sheet.addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;if(b.dataset.p){setPal(b.dataset.p);build();return}var a=b.dataset.a;
 if(a==="sm"||a==="bg"){click("#"+a);return}
@@ -100,6 +100,7 @@ if(a==="notes"){if(!$("#nvb"))click("#nt")}
 else if(a==="news")showNews();
 else if(a==="admin")location.href="admin.html";
 else if(a==="priere")location.href="priere.html";
+else if(a==="plan")location.href="plan.html";
 else if(a==="th")click("#th");
 else if(a==="lg")click("#lg");
 else if(a==="out"){try{sb.auth.signOut()}catch(x){}}});

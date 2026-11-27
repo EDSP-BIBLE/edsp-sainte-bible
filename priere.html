@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Sujets de prière · EDSP-Sainte Bible</title>
-<meta name="theme-color" content="#1E2A18">
+<meta name="theme-color" content="#5B21B6">
 <link rel="icon" type="image/png" href="icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;1,6..72,400&display=swap" rel="stylesheet">
@@ -20,8 +20,9 @@ a.back{display:inline-block;color:var(--gold);padding:.4rem 0}
 p.sub{color:var(--mut);margin:0 0 .9rem}
 .card{background:var(--cardbg);border:1.5px solid #D6B75C;border-radius:14px;padding:1rem;margin:0 0 1rem;color:var(--ink);box-shadow:0 2px 10px rgba(0,0,0,.35)}
 label{display:block;font-weight:600;margin:.8rem 0 .25rem}label:first-of-type{margin-top:0}
+#othw{margin-top:.8rem}#othw label{margin-top:0}
 .hint{font-weight:400;color:var(--cm);font-size:.86rem}
-select,textarea{width:100%;font:inherit;color:var(--ink);background:#C4BC8C;border:1px solid rgba(30,26,16,.28);border-radius:6px;padding:.6rem .7rem;min-height:2.75rem}
+select,textarea,input[type=text]{width:100%;font:inherit;color:var(--ink);background:#C4BC8C;border:1px solid rgba(30,26,16,.28);border-radius:6px;padding:.6rem .7rem;min-height:2.75rem}
 textarea{min-height:8rem;resize:vertical;line-height:1.45}
 .chk{display:flex;align-items:flex-start;gap:.6rem;font-weight:400;margin-top:1rem}
 .chk input{width:1.3rem;height:1.3rem;min-height:0;margin:.1rem 0 0;flex:none}
@@ -40,7 +41,7 @@ button.d{background:var(--err);color:#fff;border:0}
 :focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 [hidden]{display:none!important}
 </style>
-  <script src="palette.js"></script>
+<script src="palette.js"></script>
 </head>
 <body>
 <main>
@@ -51,7 +52,7 @@ button.d{background:var(--err);color:#fff;border:0}
 <div id="app" hidden>
 <div class="card">
 <h2>Déposer un sujet</h2>
-<p class="pn">Vos sujets sont confidentiels : seul l’administrateur de l’application peut les lire. Évitez d’y mettre votre numéro de téléphone, votre adresse ou des détails sur une autre personne sans son accord.</p>
+<p class="pn">Vos sujets sont confidentiels : seul l’administrateur de l’application peut les lire. Il voit votre pseudo et votre pays (ceux de votre compte), sauf si vous cochez « Rester anonyme ». Évitez d’y mettre votre numéro de téléphone, votre adresse ou des détails sur une autre personne sans son accord.</p>
 <label for="cat">Catégorie</label>
 <select id="cat">
 <option value="sante">Santé</option>
@@ -61,9 +62,13 @@ button.d{background:var(--err);color:#fff;border:0}
 <option value="action_de_grace">Action de grâce (remerciement)</option>
 <option value="autre">Autre</option>
 </select>
+<div id="othw" hidden>
+<label for="oth">Précisez le sujet <span class="hint">(obligatoire pour « Autre », en quelques mots)</span></label>
+<input id="oth" type="text" maxlength="80" autocomplete="off">
+</div>
 <label for="txt">Votre sujet de prière</label>
-<textarea id="txt" maxlength="2000"></textarea>
-<div class="cnt"><span id="n">0</span> / 2000</div>
+<textarea id="txt" maxlength="1900"></textarea>
+<div class="cnt"><span id="n">0</span> / 1900</div>
 <label class="chk" for="anon"><input id="anon" type="checkbox"><span>Rester anonyme <span class="hint">(mon nom n’est pas montré à l’administrateur)</span></span></label>
 <button class="p" id="send" type="button">Déposer mon sujet</button>
 <div class="st" id="st" role="status"></div>
@@ -91,13 +96,16 @@ const {data,error}=await sb.from("sujets_priere").select("id,categorie,texte,ano
 if(error){l.innerHTML='<p class="pn">Liste indisponible pour le moment.</p>';return}
 l.innerHTML=(data||[]).map(s=>`<div class="it"><b>${esc(CAT[s.categorie]||s.categorie)}</b><span class="bd ${STA[s.statut][1]}">${STA[s.statut][0]}</span>${s.anonyme?'<span class="bd">Anonyme</span>':""}<div class="um">${dt(s.created_at)}</div><p>${esc(s.texte)}</p><div class="bar"><button data-id="${s.id}" type="button">Supprimer</button></div></div>`).join("")||'<p class="pn">Vous n’avez encore déposé aucun sujet.</p>'}
 $("#txt").addEventListener("input",e=>{$("#n").textContent=e.target.value.length});
-$("#send").onclick=async()=>{const t=$("#txt").value.trim();
+$("#cat").addEventListener("change",e=>{$("#othw").hidden=e.target.value!=="autre"});
+$("#send").onclick=async()=>{const t=$("#txt").value.trim(),cat=$("#cat").value,o=$("#oth").value.trim();
+if(cat==="autre"&&o.length<2){status("Précisez en quelques mots le sujet de votre prière.",1);$("#oth").focus();return}
 if(t.length<3){status("Écrivez votre sujet de prière.",1);return}
+const txt=cat==="autre"?"Sujet : "+o+"\n\n"+t:t;
 const b=$("#send");b.disabled=true;
-const {error}=await sb.from("sujets_priere").insert({categorie:$("#cat").value,texte:t,anonyme:$("#anon").checked});
+const {error}=await sb.from("sujets_priere").insert({categorie:cat,texte:txt,anonyme:$("#anon").checked});
 b.disabled=false;
 if(error){status(/Limite/.test(error.message||"")?"Vous avez atteint la limite de 5 sujets par jour. Réessayez demain.":"Le dépôt a échoué. Réessayez dans un instant.",1);return}
-$("#txt").value="";$("#n").textContent="0";$("#anon").checked=false;status("Merci, votre sujet a bien été reçu.");load()};
+$("#txt").value="";$("#oth").value="";$("#n").textContent="0";$("#anon").checked=false;status("Merci, votre sujet a bien été reçu.");load()};
 $("#list").addEventListener("click",async e=>{const b=e.target.closest("button[data-id]");if(!b)return;
 if(!b.dataset.s){b.dataset.s="1";b.textContent="Confirmer ?";b.classList.add("d");setTimeout(()=>{if(b.isConnected){delete b.dataset.s;b.textContent="Supprimer";b.classList.remove("d")}},4000);return}
 const {error}=await sb.from("sujets_priere").delete().eq("id",b.dataset.id);if(error){status("La suppression a échoué.",1);return}load()});

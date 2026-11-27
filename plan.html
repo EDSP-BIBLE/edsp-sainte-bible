@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Plans de lecture · EDSP-Sainte Bible</title>
+<meta name="theme-color" content="#5B21B6">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;1,6..72,400&display=swap" rel="stylesheet">
+<style>
+:root{--page:linear-gradient(160deg,#2A190F 0%,#1E2A18 55%,#0F2A1C 100%);--fg:#E6DDBF;--mut:#BDB394;--gold:#D6B75C;--line:rgba(214,183,92,.38);--ink:#1E1A10;--cm:#2A2514;--cl:#2E1E02;--btn:#26331F;--on:#E6DDBF;--ok:#1F4D2B;--err:#7A1A10;--cardbg:linear-gradient(145deg,#B4AA79,#9D9461);box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:dark}
+*,*::before,*::after{box-sizing:inherit}
+html{background:#1E2A18}html,body{margin:0}
+body{background:var(--page);background-attachment:fixed;color:var(--fg);font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;min-height:100vh}
+main{max-width:40rem;margin:0 auto;padding:1rem .8rem 3rem}
+h1{font:600 1.7rem/1.2 Newsreader,Georgia,serif;margin:.2rem 0 .3rem}
+h2{font:600 1.15rem Newsreader,Georgia,serif;color:var(--cl);margin:0 0 .4rem}
+h3{font:600 1rem Newsreader,Georgia,serif;color:var(--cl);margin:.8rem 0 .3rem}
+a.back,button.back{display:inline-block;color:var(--gold);padding:.4rem 0;background:none;border:0;font:inherit;text-decoration:underline;cursor:pointer;min-height:0}
+p.sub{color:var(--mut);margin:0 0 .9rem}
+.card{background:var(--cardbg);border:1.5px solid #D6B75C;border-radius:14px;padding:1rem;margin:0 0 1rem;color:var(--ink);box-shadow:0 2px 10px rgba(0,0,0,.35)}
+.pn{color:var(--cm);font-size:.9rem;margin:.3rem 0}
+button{font:inherit;cursor:pointer;min-height:2.75rem;padding:0 1.1rem;border-radius:6px;border:1px solid rgba(30,26,16,.3);background:#C4BC8C;color:var(--ink)}
+button.p{background:var(--btn);color:var(--on);border:0;font-weight:600}
+button.d{background:var(--err);color:#fff;border:0}
+button.x{border:0;background:none;color:var(--cm);text-decoration:underline;padding:0 .4rem;min-height:2.2rem}
+select{font:inherit;color:var(--ink);background:#C4BC8C;border:1px solid rgba(30,26,16,.28);border-radius:6px;padding:.5rem .6rem;min-height:2.75rem;max-width:100%}
+.bar{display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;margin-top:.7rem}
+.bar .grow{flex:1}
+.pl{display:block;width:100%;text-align:left;margin:0 0 .7rem;padding:.8rem 1rem;min-height:0;border-radius:12px;background:var(--cardbg);border:1.5px solid #D6B75C;color:var(--ink);box-shadow:0 2px 10px rgba(0,0,0,.3)}
+.pl b{display:block;font:600 1.1rem Newsreader,Georgia,serif;color:var(--cl)}
+.pl span{display:block;font-size:.9rem;color:var(--cm)}
+.pg{height:.7rem;background:rgba(30,26,16,.2);border-radius:6px;overflow:hidden;margin:.45rem 0 .15rem}
+.pg i{display:block;height:100%;background:var(--btn);min-width:0}
+.ref{display:inline-block;margin:.2rem .4rem .2rem 0;padding:.3rem .75rem;border-radius:999px;background:var(--btn);color:var(--on);font-weight:600}
+.dn{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap}
+.dn b{font:600 1.25rem Newsreader,Georgia,serif;color:var(--cl)}
+.ok{color:var(--ok);font-weight:700}
+.st{min-height:1.3rem;font-size:.92rem;margin:.5rem 0 0;color:var(--ok)}.st.e{color:var(--err)}
+.txt{margin-top:.8rem;max-height:32rem;overflow:auto;font-family:Newsreader,Georgia,serif;font-size:1.08rem;line-height:1.6}
+.txt p{margin:0 0 .4rem;color:var(--ink)}
+.txt .vn{font:700 .75rem system-ui,sans-serif;vertical-align:super;margin-right:.2rem;color:var(--cl)}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+[hidden]{display:none!important}
+</style>
+<script src="palette.js"></script>
+</head>
+<body>
+<main>
+<a class="back" href="index.html">← Retour à la Bible</a>
+<h1>Plans de lecture</h1>
+<p class="sub">Lisez la Bible un peu chaque jour. Votre progression est enregistrée dans votre compte, sur tous vos appareils.</p>
+<div id="msg" class="card" hidden></div>
+<div id="app" hidden></div>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script>
+/* Même adresse et même clé publique (anon) que index.html. Chacun ne voit que sa propre progression (protégé par la base de données). */
+const SB_URL="https://wkgbhmrfhvcljtvbocxu.supabase.co", SB_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndrZ2JobXJmaHZjbGp0dmJvY3h1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMyMjUxMDYsImV4cCI6MjEwODgwMTEwNn0.vOMkUz5xHmfgO3ymDLZqSwYr7XIBDBetNUNSRp5exOs";
+const sb=supabase.createClient(SB_URL,SB_KEY);
+const $=s=>document.querySelector(s);
+const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+let U=null,BK=[],VR=[],V="LSG",CUR=null,DAY=1,DONE={},TX={},OPEN=false,ask=false,tmr;
+try{const q=JSON.parse(localStorage.getItem("edsp_prefs")||"{}");V=q.verPick&&q.ver?q.ver:(q.lang==="en"?"WEB":"LSG")}catch(e){}
+
+/* ===== Les plans ===== */
+const PLANS=[
+{id:"jn21",t:"L’Évangile de Jean en 21 jours",d:"Pour commencer : un chapitre par jour pour découvrir Jésus.",n:21},
+{id:"ev30",t:"Les quatre Évangiles en 30 jours",d:"Matthieu, Marc, Luc et Jean : la vie de Jésus en un mois.",n:30},
+{id:"ps31",t:"Psaumes et Proverbes en 31 jours",d:"Cinq psaumes et un proverbe par jour, pour prier et gagner en sagesse.",n:31},
+{id:"act60",t:"Actes, lettres et Apocalypse en 60 jours",d:"La suite des Évangiles : les débuts de l’Église et les lettres des apôtres.",n:60},
+{id:"nt90",t:"Le Nouveau Testament en 90 jours",d:"De Matthieu à l’Apocalypse, environ trois chapitres par jour.",n:90},
+{id:"an1",t:"La Bible en 1 an",d:"Chaque jour, un passage de l’Ancien Testament et un du Nouveau.",n:365},
+{id:"an2",t:"La Bible en 2 ans",d:"Le même parcours à un rythme plus tranquille.",n:730}
+];
+function chaps(f){const o=[];BK.filter(f).forEach(b=>{for(let c=1;c<=b.nb_chapitres;c++)o.push({b:b.code,c})});return o}
+function seg(list){const o=[];list.forEach(x=>{const l=o[o.length-1];if(l&&l.b===x.b&&x.c===l.c2+1)l.c2=x.c;else o.push({b:x.b,c1:x.c,c2:x.c})});return o}
+function split(list,N){const d=[];for(let i=0;i<N;i++)d.push(seg(list.slice(Math.floor(i*list.length/N),Math.floor((i+1)*list.length/N))));return d}
+const CACHE={};
+function make(id){if(CACHE[id])return CACHE[id];let d;
+if(id==="jn21")d=split(chaps(b=>b.code==="JOH"),21);
+else if(id==="ev30")d=split(chaps(b=>b.ordre>=40&&b.ordre<=43),30);
+else if(id==="act60")d=split(chaps(b=>b.ordre>=44),60);
+else if(id==="nt90")d=split(chaps(b=>b.ordre>=40),90);
+else if(id==="an1"||id==="an2"){const N=id==="an1"?365:730,ot=split(chaps(b=>b.ordre<=39),N),nt=split(chaps(b=>b.ordre>=40),N);d=ot.map((x,i)=>x.concat(nt[i]))}
+else if(id==="ps31"){d=[];for(let k=1;k<=31;k++){const s=[];if(k<=30)[k,k+30,k+60,k+90,k+120].forEach(p=>{if(p<=150)s.push({b:"PSA",c1:p,c2:p})});s.push({b:"PRO",c1:k,c2:k});d.push(s)}}
+return CACHE[id]=d}
+const bn=c=>{const k=BK.find(b=>b.code===c)||{};return (((VR.find(v=>v.code===V)||{}).langue==="en")?k.nom_en:k.nom_fr)||c};
+const lab=s=>bn(s.b)+" "+s.c1+(s.c2>s.c1?"–"+s.c2:"");
+const done=id=>DONE[id]||[];
+const cur=id=>{const d=new Set(done(id)),n=make(id).length;for(let k=1;k<=n;k++)if(!d.has(k))return k;return n+1};
+function status(m,e){const x=$("#st");if(!x)return;x.textContent=m;x.className="st"+(e?" e":"");clearTimeout(tmr);if(!e)tmr=setTimeout(()=>{x.textContent=""},2500)}
+
+/* ===== Écrans ===== */
+function list(){CUR=null;ask=false;
+$("#app").innerHTML=PLANS.map(p=>{const n=done(p.id).length,pc=Math.round(n/p.n*100);
+return `<button class="pl" data-p="${p.id}"><b>${esc(p.t)}</b><span>${esc(p.d)}</span>${n?`<div class="pg" role="img" aria-label="${pc} %"><i style="width:${pc}%"></i></div><span>${n} / ${p.n} jours lus${n>=p.n?" · terminé":""}</span>`:`<span>${p.n} jours</span>`}</button>`}).join("")}
+function open(id){CUR=id;OPEN=false;ask=false;DAY=Math.min(cur(id),make(id).length);show()}
+function show(){const p=PLANS.find(x=>x.id===CUR),days=make(CUR),n=days.length,d=new Set(done(CUR)),pc=Math.round(d.size/n*100),segs=days[DAY-1]||[],isDone=d.has(DAY);
+const vs=VR.length?VR:[{code:"LSG"},{code:"WEB"}];
+$("#app").innerHTML=`<button class="back" id="bk">← Tous les plans</button><div class="card"><h2>${esc(p.t)}</h2><div class="pg" role="img" aria-label="${pc} %"><i style="width:${pc}%"></i></div><p class="pn">${d.size} / ${n} jours lus${d.size>=n?" · plan terminé, bravo !":""}</p>${d.size<n&&DAY!==cur(CUR)?`<div class="bar"><button id="nx">Aller au prochain jour à lire (jour ${cur(CUR)})</button></div>`:""}</div>
+<div class="card"><div class="dn"><b>Jour ${DAY}</b>${isDone?'<span class="ok">✓ lu</span>':""}<span class="grow" style="flex:1"></span><select id="dsel" aria-label="Choisir un jour">${days.map((_,i)=>`<option value="${i+1}" ${i+1===DAY?"selected":""}>Jour ${i+1}${d.has(i+1)?" ✓":""}</option>`).join("")}</select></div>
+<div style="margin-top:.5rem">${segs.map(s=>`<span class="ref">${esc(lab(s))}</span>`).join("")}</div>
+<div class="bar"><button id="rd">${OPEN?"Masquer le texte":"Lire ici"}</button><select id="ver" aria-label="Version">${vs.map(v=>`<option value="${esc(v.code)}" ${v.code===V?"selected":""}>${esc(v.code)}</option>`).join("")}</select></div>
+<div id="tx" class="txt" ${OPEN?"":"hidden"} aria-live="polite"></div>
+<div class="bar"><button class="p" id="mk">${isDone?"Jour lu : annuler":"Marquer ce jour comme lu"}</button>${DAY>1?'<button id="pv">← Jour '+(DAY-1)+'</button>':""}${DAY<n?'<button id="nt">Jour '+(DAY+1)+' →</button>':""}</div>
+<div class="st" id="st" role="status"></div></div>
+<div class="bar"><button class="x" id="rs">${ask?"Confirmer : tout effacer ?":"Recommencer ce plan"}</button></div>`;
+if(OPEN)loadText()}
+async function loadText(){const box=$("#tx");if(!box)return;box.innerHTML='<p class="pn">Chargement…</p>';const my=CUR+"|"+DAY+"|"+V;
+const segs=make(CUR)[DAY-1]||[];let out="";
+try{for(const s of segs){const k=V+"|"+s.b+"|"+s.c1+"|"+s.c2;
+if(!TX[k]){const {data,error}=await sb.from("versets").select("chapitre,verset,texte").eq("version",V).eq("livre",s.b).gte("chapitre",s.c1).lte("chapitre",s.c2).order("chapitre").order("verset");if(error)throw error;TX[k]=data||[]}
+let ch=0;out+="<h3>"+esc(bn(s.b))+"</h3>";TX[k].forEach(v=>{if(v.chapitre!==ch){ch=v.chapitre;out+='<p><b>'+esc(bn(s.b))+" "+ch+"</b></p>"}out+='<p><span class="vn">'+v.verset+"</span>"+esc(v.texte)+"</p>"})}}
+catch(e){if(my===CUR+"|"+DAY+"|"+V&&$("#tx"))$("#tx").innerHTML='<p class="pn">Impossible de charger le texte pour le moment.</p>';return}
+if(my===CUR+"|"+DAY+"|"+V&&$("#tx"))$("#tx").innerHTML=out||'<p class="pn">Texte non disponible dans cette version.</p>'}
+async function saveDone(id){const {error}=await sb.from("plans_lecture").upsert({user_id:U.id,plan:id,jours_lus:done(id),updated_at:new Date().toISOString()},{onConflict:"user_id,plan"});return !error}
+document.addEventListener("click",async e=>{const t=e.target.closest("button");if(!t||!U)return;
+if(t.dataset.p){open(t.dataset.p);scrollTo(0,0);return}
+if(!CUR)return;const n=make(CUR).length;
+if(t.id==="bk"){list();scrollTo(0,0)}
+else if(t.id==="nx"){DAY=Math.min(cur(CUR),n);OPEN=false;show();scrollTo(0,0)}
+else if(t.id==="pv"){DAY--;OPEN=false;show();scrollTo(0,0)}
+else if(t.id==="nt"){DAY++;OPEN=false;show();scrollTo(0,0)}
+else if(t.id==="rd"){OPEN=!OPEN;show()}
+else if(t.id==="mk"){const s=new Set(done(CUR));const had=s.has(DAY);if(had)s.delete(DAY);else s.add(DAY);const prev=DONE[CUR];DONE[CUR]=[...s].sort((a,b)=>a-b);
+const ok=await saveDone(CUR);if(!ok){DONE[CUR]=prev||[];show();status("L’enregistrement a échoué. Réessayez dans un instant.",1);return}
+if(!had&&DAY<n){DAY++;OPEN=false}show();status(had?"Jour remis à lire.":"Enregistré. Bonne lecture !")}
+else if(t.id==="rs"){if(!ask){ask=true;show();return}ask=false;const {error}=await sb.from("plans_lecture").delete().eq("plan",CUR);if(error){show();status("La suppression a échoué.",1);return}DONE[CUR]=[];DAY=1;OPEN=false;show()}});
+document.addEventListener("change",e=>{if(e.target.id==="dsel"){DAY=+e.target.value;OPEN=false;show()}else if(e.target.id==="ver"){V=e.target.value;OPEN=true;show()}});
+function say(h){const m=$("#msg");m.innerHTML=h;m.hidden=false}
+(async()=>{
+const {data:{session}}=await sb.auth.getSession();
+if(!session){say('<h2>Connexion nécessaire</h2><p class="pn">Connectez-vous d’abord dans l’application, puis revenez ici.</p><a class="back" style="color:var(--cl)" href="index.html">Aller à la connexion</a>');return}
+U=session.user;
+const [a,b,c]=await Promise.all([sb.from("livres").select("code,ordre,nom_fr,nom_en,nb_chapitres").order("ordre"),sb.from("versions").select("code,nom,langue").order("code"),sb.from("plans_lecture").select("plan,jours_lus")]);
+if(!a.data||!a.data.length){say("<h2>Chargement impossible</h2><p class=\"pn\">Réessayez dans un instant.</p>");return}
+BK=a.data;VR=(b.data&&b.data.length)?b.data:[{code:"LSG",nom:"Louis Segond 1910",langue:"fr"},{code:"WEB",nom:"World English Bible",langue:"en"}];if(!VR.some(v=>v.code===V))V=VR[0].code;
+(c.data||[]).forEach(r=>{DONE[r.plan]=r.jours_lus||[]});
+$("#app").hidden=false;list()})();
+</script>
+</body>
+</html>
