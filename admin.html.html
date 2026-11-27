@@ -166,7 +166,7 @@ const rs=$("#creset");if(rs)rs.onclick=()=>sure(rs,async()=>{const {error}=await
 
 
 /* ---------- Sujets de prière ---------- */
-const PCAT={sante:"Santé",famille:"Famille",travail:"Travail ou études",guidance:"Décision ou guidance",action_de_grace:"Action de grâce",autre:"Autre"};
+const PCAT={mariage:"Mariage",enfantement:"Enfantement"sante:"Santé",famille:"Famille",travail:"Travail ou études",guidance:"Décision ou guidance",action_de_grace:"Action de grâce",autre:"Autre"};
 const PSTA={recu:["Reçu","r"],en_priere:["En prière",""],exauce:["Exaucé","g"]};
 let PR={f:"recu",rows:[],total:0};
 async function prayBadge(){try{const r=await rpc("admin_prieres",{p_statut:"recu",p_limit:1,p_offset:0});const n=r.length?+r[0].total:0;$("#tpray").textContent=n?"Prières ("+n+")":"Prières"}catch(e){}}
