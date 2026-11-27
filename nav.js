@@ -1,7 +1,7 @@
 /* EDSP-Sainte Bible : barre d'onglets en bas (5 entrées) + menu « Plus » */
 (function(){
-var FR={lire:"Lire",contenu:"Contenu",cours:"Cours",sermon:"Sermon",plus:"Plus",notes:"Mes notes et surlignages",taille:"Taille du texte",theme:"Changer le thème",lang:"English",out:"Se déconnecter",news:"Nouveautés",admin:"Espace super admin",close:"Fermer",priere:"Sujets de prière",plan:"Plans de lecture",ver:"Version",upd:"Une nouvelle version est disponible.",refresh:"Actualiser",pal:"Couleurs",p_logo:"Logo",p_ocean:"Océan",p_aurore:"Aurore",p_foret:"Forêt",p_classic:"Classique"};
-var EN={lire:"Read",contenu:"Contents",cours:"Course",sermon:"Sermon",plus:"More",notes:"My notes and highlights",taille:"Text size",theme:"Switch theme",lang:"Français",out:"Log out",news:"What’s new",admin:"Super admin area",close:"Close",priere:"Prayer requests",plan:"Reading plans",ver:"Version",upd:"A new version is available.",refresh:"Refresh",pal:"Colours",p_logo:"Logo",p_ocean:"Ocean",p_aurore:"Dawn",p_foret:"Forest",p_classic:"Classic"};
+var FR={lire:"Lire",contenu:"Contenu",cours:"Cours",sermon:"Sermon",plus:"Plus",notes:"Mes notes et surlignages",taille:"Taille du texte",theme:"Changer le thème",lang:"English",out:"Se déconnecter",news:"Nouveautés",admin:"Espace super admin",close:"Fermer",priere:"Sujets de prière",plan:"Plans de lecture",ver:"Version",upd:"Une nouvelle version est disponible.",refresh:"Actualiser",jes:"Paroles de Jésus",j_rouge:"Rouge foncé",j_bordeaux:"Bordeaux",j_bleu:"Bleu nuit",j_off:"Désactivé",pal:"Couleurs",p_logo:"Logo",p_ocean:"Océan",p_aurore:"Aurore",p_foret:"Forêt",p_classic:"Classique"};
+var EN={lire:"Read",contenu:"Contents",cours:"Course",sermon:"Sermon",plus:"More",notes:"My notes and highlights",taille:"Text size",theme:"Switch theme",lang:"Français",out:"Log out",news:"What’s new",admin:"Super admin area",close:"Close",priere:"Prayer requests",plan:"Reading plans",ver:"Version",upd:"A new version is available.",refresh:"Refresh",jes:"Words of Jesus",j_rouge:"Dark red",j_bordeaux:"Burgundy",j_bleu:"Navy",j_off:"Off",pal:"Colours",p_logo:"Logo",p_ocean:"Ocean",p_aurore:"Dawn",p_foret:"Forest",p_classic:"Classic"};
 function svg(p){return '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+p+'</svg>'}
 var IC={
 lire:'<path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H11v15H5.5A1.5 1.5 0 0 0 4 20.5z"/><path d="M20 5.5A1.5 1.5 0 0 0 18.5 4H13v15h5.5a1.5 1.5 0 0 1 1.5 1.5z"/>',
@@ -11,11 +11,16 @@ sermon:'<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5
 plus:'<path d="M5 12h.01M12 12h.01M19 12h.01" stroke-width="3"/>'};
 var PALS=[["logo","linear-gradient(135deg,#1E3AE0,#B5179E)"],["ocean","linear-gradient(135deg,#0A2A8F,#077C94)"],["aurore","linear-gradient(135deg,#6D1B9A,#C2410C)"],["foret","linear-gradient(135deg,#05402F,#0E8A4A)"],["classic","linear-gradient(135deg,#2A190F,#0F2A1C)"]];
 function curPal(){var p="logo";try{p=localStorage.getItem("edsp_palette")||"logo"}catch(e){}return PALS.some(function(x){return x[0]===p})?p:"logo"}
+var JC=[["rouge","#B3001B"],["bordeaux","#6E0B2A"],["bleu","#1A3A9E"],["off",""]];
+function curJ(){var j="rouge";try{j=localStorage.getItem("edsp_jesus")||"rouge"}catch(e){}return JC.some(function(x){return x[0]===j})?j:"rouge"}
+function applyJ(j){var r=document.documentElement;if(j==="rouge")r.removeAttribute("data-jesus");else r.setAttribute("data-jesus",j)}
+function setJ(j){try{localStorage.setItem("edsp_jesus",j)}catch(e){}applyJ(j);try{if(typeof render==="function")render()}catch(e){}}
+function jesRow(L){var cur=curJ();return '<div class="r pr"><span>'+L.jes+'</span><span class="pz">'+JC.map(function(c){return '<button type="button" data-j="'+c[0]+'" aria-label="'+L["j_"+c[0]]+'" aria-pressed="'+(c[0]===cur)+'" style="background:'+(c[1]||"transparent")+'">'+(c[0]==="off"?"✕":"")+'</button>'}).join("")+'</span></div>'}
 function applyPal(p){var r=document.documentElement;if(p==="logo")r.removeAttribute("data-palette");else r.setAttribute("data-palette",p);
 var m=document.querySelector('meta[name=theme-color]'),c=getComputedStyle(r).getPropertyValue("--htmlbg").trim();if(m&&c)m.setAttribute("content",c)}
 function setPal(p){try{localStorage.setItem("edsp_palette",p)}catch(e){}applyPal(p)}
 function palRow(L){var cur=curPal();return '<div class="r pr"><span>'+L.pal+'</span><span class="pz">'+PALS.map(function(p){return '<button type="button" data-p="'+p[0]+'" aria-label="'+L["p_"+p[0]]+'" aria-pressed="'+(p[0]===cur)+'" style="background:'+p[1]+'"></button>'}).join("")+'</span></div>'}
-applyPal(curPal());
+applyPal(curPal());applyJ(curJ());
 var css=document.createElement("style");
 css.textContent=
 "header.bar{justify-content:center}header.bar .tools{display:none!important}"+
@@ -61,7 +66,7 @@ css.textContent+=
 "}";
 css.textContent+=".ntab[hidden],.nsheet[hidden]{display:none!important}";
 css.textContent+="#splash{background:var(--splash)!important}#splash #nlogo{width:104px;height:104px;border-radius:24px;margin:0 0 1.2rem;box-shadow:0 6px 24px rgba(0,0,0,.45)}";
-css.textContent+=".nsheet .pr{flex-direction:column;align-items:flex-start;justify-content:center;gap:.45rem;min-height:0;padding:.6rem .8rem}.nsheet .pz{display:flex;gap:.5rem}.nsheet .pz button{width:2.4rem;height:2.4rem;border-radius:50%;border:2px solid var(--line);padding:0;cursor:pointer}.nsheet .pz button[aria-pressed=true]{border-color:var(--fg);box-shadow:0 0 0 2px var(--gold)}";
+css.textContent+=".nsheet .pr{flex-direction:column;align-items:flex-start;justify-content:center;gap:.45rem;min-height:0;padding:.6rem .8rem}.nsheet .pz{display:flex;gap:.5rem}.nsheet .pz button{width:2.4rem;height:2.4rem;border-radius:50%;border:2px solid var(--line);padding:0;cursor:pointer}.nsheet .pz button{color:var(--fg);font-size:1rem}.nsheet .pz button[aria-pressed=true]{border-color:var(--fg);box-shadow:0 0 0 2px var(--gold)}";
 document.head.appendChild(css);
 var spl=document.getElementById("splash");
 if(spl&&!document.getElementById("nlogo")){var lg=document.createElement("img");lg.id="nlogo";lg.src="icon-192.png";lg.alt="";lg.width=104;lg.height=104;spl.insertBefore(lg,spl.firstChild)}
@@ -74,7 +79,7 @@ var sig="";
 function build(){
 var L=T(),k=["lire","contenu","cours","sermon","plus"];
 nav.innerHTML=k.map(function(x){return '<button type="button" data-t="'+x+'"'+(x==="plus"?' aria-haspopup="true" aria-expanded="false"':'')+'>'+svg(IC[x])+'<span>'+L[x]+'</span></button>'}).join("");
-sheet.innerHTML='<div id="nx"></div><button type="button" class="r" data-a="plan">'+L.plan+'</button><button type="button" class="r" data-a="priere">'+L.priere+'</button><button type="button" class="r" data-a="notes">'+L.notes+'</button><div class="r"><span>'+L.taille+'</span><span class="z"><button type="button" data-a="sm" aria-label="A−">A−</button><button type="button" data-a="bg" aria-label="A+">A+</button></span></div><button type="button" class="r" data-a="th">'+L.theme+'</button>'+palRow(L)+'<button type="button" class="r" data-a="lg">'+L.lang+'</button><hr><button type="button" class="r" data-a="out">'+L.out+'</button><div class="vf" id="nv"></div>';
+sheet.innerHTML='<div id="nx"></div><button type="button" class="r" data-a="plan">'+L.plan+'</button><button type="button" class="r" data-a="priere">'+L.priere+'</button><button type="button" class="r" data-a="notes">'+L.notes+'</button><div class="r"><span>'+L.taille+'</span><span class="z"><button type="button" data-a="sm" aria-label="A−">A−</button><button type="button" data-a="bg" aria-label="A+">A+</button></span></div><button type="button" class="r" data-a="th">'+L.theme+'</button>'+palRow(L)+jesRow(L)+'<button type="button" class="r" data-a="lg">'+L.lang+'</button><hr><button type="button" class="r" data-a="out">'+L.out+'</button><div class="vf" id="nv"></div>';
 fillExtras();
 }
 function active(){return $("#tcb")?1:$("#crb")?2:$("#nvb")?4:0}
@@ -93,7 +98,7 @@ if(t==="lire"){var r=$("#tcb")||$("#crb")||$("#nvb")||$("#bk0");if(r)r.click();e
 else if(t==="contenu"){if(!$("#tcb"))click("#tc");else scrollTo(0,0)}
 else if(t==="cours"){if(!$("#crb"))click("#cr");else if($("#crl"))click("#crl");else scrollTo(0,0)}
 else if(t==="sermon"){location.href="sermon.html"}});
-sheet.addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;if(b.dataset.p){setPal(b.dataset.p);build();return}var a=b.dataset.a;
+sheet.addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;if(b.dataset.p){setPal(b.dataset.p);build();return}if(b.dataset.j){setJ(b.dataset.j);build();return}var a=b.dataset.a;
 if(a==="sm"||a==="bg"){click("#"+a);return}
 closeSheet();
 if(a==="notes"){if(!$("#nvb"))click("#nt")}
