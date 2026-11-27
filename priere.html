@@ -20,10 +20,15 @@ a.back{display:inline-block;color:var(--gold);padding:.4rem 0}
 p.sub{color:var(--mut);margin:0 0 .9rem}
 .card{background:var(--cardbg);border:1.5px solid #D6B75C;border-radius:14px;padding:1rem;margin:0 0 1rem;color:var(--ink);box-shadow:0 2px 10px rgba(0,0,0,.35)}
 label{display:block;font-weight:600;margin:.8rem 0 .25rem}label:first-of-type{margin-top:0}
-#othw{margin-top:.8rem}#othw label{margin-top:0}
+.fld{margin-top:.8rem}.fld label{margin-top:0}
 .hint{font-weight:400;color:var(--cm);font-size:.86rem}
 select,textarea,input[type=text]{width:100%;font:inherit;color:var(--ink);background:#C4BC8C;border:1px solid rgba(30,26,16,.28);border-radius:6px;padding:.6rem .7rem;min-height:2.75rem}
 textarea{min-height:8rem;resize:vertical;line-height:1.45}
+.idb{margin-top:.8rem;padding:.6rem .8rem;border-radius:10px;background:rgba(30,26,16,.1)}
+.idb .row{display:flex;flex-wrap:wrap;gap:.2rem 1.2rem}
+.idb .row span{transition:opacity .2s}
+.idb.off .row span{opacity:.5;text-decoration:line-through}
+.idb .why{margin:.3rem 0 0;font-size:.84rem;color:var(--cm)}
 .chk{display:flex;align-items:flex-start;gap:.6rem;font-weight:400;margin-top:1rem}
 .chk input{width:1.3rem;height:1.3rem;min-height:0;margin:.1rem 0 0;flex:none}
 .cnt{text-align:right;font-size:.82rem;color:var(--cm);margin-top:.2rem}
@@ -38,6 +43,10 @@ button.d{background:var(--err);color:#fff;border:0}
 .bd{display:inline-block;font-size:.72rem;font-weight:700;border-radius:999px;padding:.05rem .55rem;margin-left:.3rem;background:var(--cl);color:#fff}
 .bd.g{background:var(--ok)}.bd.o{background:#8A5A12}
 .bar{display:flex;gap:.5rem;margin-top:.4rem}.bar button{min-height:2.4rem}
+.ov{position:fixed;inset:0;z-index:20;background:rgba(0,0,0,.65);display:flex;align-items:center;justify-content:center;padding:1rem}
+.ov .card{max-width:30rem;width:100%;margin:0;max-height:90vh;overflow:auto}
+.ov ul{margin:.4rem 0 .6rem;padding-left:1.2rem}.ov li{margin:.25rem 0}
+.ov .bar{flex-direction:column}.ov .bar button{width:100%}
 :focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 [hidden]{display:none!important}
 </style>
@@ -45,40 +54,19 @@ button.d{background:var(--err);color:#fff;border:0}
 </head>
 <body>
 <main>
-<a class="back" href="index.html">← Retour à la Bible</a>
-<h1>Sujets de prière</h1>
-<p class="sub">Déposez ici ce que vous souhaitez confier à la prière.</p>
+<a class="back" id="bk" href="index.html"></a>
+<h1 id="h1"></h1>
+<p class="sub" id="sub"></p>
 <div id="msg" class="card" hidden></div>
-<div id="app" hidden>
-<div class="card">
-<h2>Déposer un sujet</h2>
-<p class="pn">Vos sujets sont confidentiels : seul l’administrateur de l’application peut les lire. Il voit votre pseudo et votre pays (ceux de votre compte), sauf si vous cochez « Rester anonyme ». Évitez d’y mettre votre numéro de téléphone, votre adresse ou des détails sur une autre personne sans son accord.</p>
-<label for="cat">Catégorie</label>
-<select id="cat">
-<option value="sante">Santé</option>
-<option value="famille">Famille</option>
-<option value="travail">Travail ou études</option>
-<option value="guidance">Décision ou guidance</option>
-<option value="action_de_grace">Action de grâce (remerciement)</option>
-<option value="autre">Autre</option>
-</select>
-<div id="othw" hidden>
-<label for="oth">Précisez le sujet <span class="hint">(obligatoire pour « Autre », en quelques mots)</span></label>
-<input id="oth" type="text" maxlength="80" autocomplete="off">
-</div>
-<label for="txt">Votre sujet de prière</label>
-<textarea id="txt" maxlength="1900"></textarea>
-<div class="cnt"><span id="n">0</span> / 1900</div>
-<label class="chk" for="anon"><input id="anon" type="checkbox"><span>Rester anonyme <span class="hint">(mon nom n’est pas montré à l’administrateur)</span></span></label>
-<button class="p" id="send" type="button">Déposer mon sujet</button>
-<div class="st" id="st" role="status"></div>
-</div>
-<div class="card">
-<h2>Mes sujets</h2>
-<div id="list"><p class="pn">Chargement…</p></div>
-</div>
-</div>
+<div id="app" hidden></div>
 </main>
+<div id="dlg" class="ov" role="dialog" aria-modal="true" aria-labelledby="dlt" hidden>
+<div class="card">
+<h2 id="dlt"></h2>
+<div id="dlb"></div>
+<div class="bar"><button class="p" id="dly" type="button" style="margin-top:0"></button><button id="dln" type="button"></button></div>
+</div>
+</div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script>
 /* Même adresse et même clé publique (anon) que index.html. Chacun ne voit que ses propres sujets (protégé par la base de données). */
@@ -86,34 +74,100 @@ const SB_URL="https://wkgbhmrfhvcljtvbocxu.supabase.co", SB_KEY="eyJhbGciOiJIUzI
 const sb=supabase.createClient(SB_URL,SB_KEY);
 const $=s=>document.querySelector(s);
 const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-const CAT={sante:"Santé",famille:"Famille",travail:"Travail ou études",guidance:"Décision ou guidance",action_de_grace:"Action de grâce",autre:"Autre"};
-const STA={recu:["Reçu",""],en_priere:["En prière","o"],exauce:["Exaucé","g"]};
-const dt=d=>new Date(d).toLocaleDateString("fr-FR",{day:"numeric",month:"long",year:"numeric"});
-let tmr;
-function status(m,e){const x=$("#st");x.textContent=m;x.className="st"+(e?" e":"");clearTimeout(tmr);if(!e)tmr=setTimeout(()=>{x.textContent=""},4000)}
-async function load(){const l=$("#list");
-const {data,error}=await sb.from("sujets_priere").select("id,categorie,texte,anonyme,statut,created_at").order("created_at",{ascending:false});
-if(error){l.innerHTML='<p class="pn">Liste indisponible pour le moment.</p>';return}
-l.innerHTML=(data||[]).map(s=>`<div class="it"><b>${esc(CAT[s.categorie]||s.categorie)}</b><span class="bd ${STA[s.statut][1]}">${STA[s.statut][0]}</span>${s.anonyme?'<span class="bd">Anonyme</span>':""}<div class="um">${dt(s.created_at)}</div><p>${esc(s.texte)}</p><div class="bar"><button data-id="${s.id}" type="button">Supprimer</button></div></div>`).join("")||'<p class="pn">Vous n’avez encore déposé aucun sujet.</p>'}
+
+/* Langue : celle de l'application (Plus > English / Français), sinon celle de l'appareil */
+let LANG=(navigator.language||"fr").slice(0,2)==="en"?"en":"fr";
+try{const p=JSON.parse(localStorage.getItem("edsp_prefs")||"{}");if(p.lang==="en"||p.lang==="fr")LANG=p.lang}catch(e){}
+document.documentElement.lang=LANG;
+const TX={
+fr:{title:"Sujets de prière",back:"← Retour à la Bible",sub:"Déposez ici ce que vous souhaitez confier à la prière.",dep:"Déposer un sujet",
+note:"Vos sujets sont confidentiels : seul l’administrateur de l’application peut les lire. Évitez d’y mettre votre numéro de téléphone, votre adresse ou des détails sur une autre personne sans son accord.",
+cat:"Catégorie",oth:"Précisez le sujet",othh:"(obligatoire pour « Autre », en quelques mots)",
+you:"Vos informations",pseudo:"Pseudo",country:"Pays",why:"Ces informations viennent de votre inscription. L’administrateur les voit avec votre sujet, sauf si vous restez anonyme.",whyoff:"Vous restez anonyme : ces informations ne seront pas montrées.",
+msg:"Votre sujet de prière",anon:"Rester anonyme",anonh:"(mon pseudo et mon pays ne sont pas montrés à l’administrateur)",send:"Déposer mon sujet",mine:"Mes sujets",load:"Chargement…",
+nolist:"Liste indisponible pour le moment.",none:"Vous n’avez encore déposé aucun sujet.",anonb:"Anonyme",del:"Supprimer",conf:"Confirmer ?",
+subj:"Sujet : ",needoth:"Précisez en quelques mots le sujet de votre prière.",needtxt:"Écrivez votre sujet de prière.",limit:"Vous avez atteint la limite de 5 sujets par jour. Réessayez demain.",fail:"Le dépôt a échoué. Réessayez dans un instant.",thanks:"Merci, votre sujet a bien été reçu.",delfail:"La suppression a échoué.",
+need:"Connexion nécessaire",needb:"Connectez-vous d’abord dans l’application, puis revenez ici.",needl:"Aller à la connexion",
+dlt:"Rester anonyme ?",dlq:"Êtes-vous sûr de vouloir rester anonyme ? Voici ce que cela change :",
+dl1:"L’administrateur lira votre sujet de prière, mais ne verra ni votre pseudo ni votre pays.",dl2:"Il ne pourra donc pas savoir qui vous êtes, ni vous répondre personnellement.",dl3:"Votre sujet sera quand même pris en prière.",dl4:"Vous pouvez décocher cette case tant que vous n’avez pas déposé votre sujet.",
+dly:"Oui, je reste anonyme",dln:"Non, montrer mon pseudo et mon pays",
+cats:{sante:"Santé",famille:"Famille",mariage:"Mariage",enfantement:"Enfantement (désir d’enfant, grossesse, accouchement)",travail:"Travail ou études",guidance:"Décision ou guidance",action_de_grace:"Action de grâce (remerciement)",autre:"Autre"},
+st:{recu:"Reçu",en_priere:"En prière",exauce:"Exaucé"},loc:"fr-FR"},
+en:{title:"Prayer requests",back:"← Back to the Bible",sub:"Share here what you would like to bring to prayer.",dep:"Submit a request",
+note:"Your requests are confidential: only the app administrator can read them. Please avoid including your phone number, your address, or details about another person without their consent.",
+cat:"Category",oth:"What is it about?",othh:"(required for “Other”, a few words)",
+you:"Your details",pseudo:"Username",country:"Country",why:"These details come from your sign-up. The administrator sees them with your request, unless you stay anonymous.",whyoff:"You are staying anonymous: these details will not be shown.",
+msg:"Your prayer request",anon:"Stay anonymous",anonh:"(my username and country are not shown to the administrator)",send:"Submit my request",mine:"My requests",load:"Loading…",
+nolist:"List unavailable for the moment.",none:"You have not submitted any request yet.",anonb:"Anonymous",del:"Delete",conf:"Confirm?",
+subj:"Subject: ",needoth:"Please say in a few words what your request is about.",needtxt:"Write your prayer request.",limit:"You have reached the limit of 5 requests per day. Please try again tomorrow.",fail:"Submission failed. Please try again in a moment.",thanks:"Thank you, your request has been received.",delfail:"Deletion failed.",
+need:"Login required",needb:"Please log in to the app first, then come back here.",needl:"Go to login",
+dlt:"Stay anonymous?",dlq:"Are you sure you want to stay anonymous? Here is what it changes:",
+dl1:"The administrator will read your prayer request, but will not see your username or your country.",dl2:"So they will not know who you are, and cannot reply to you personally.",dl3:"Your request will still be prayed for.",dl4:"You can untick this box any time before you submit your request.",
+dly:"Yes, stay anonymous",dln:"No, show my username and country",
+cats:{sante:"Health",famille:"Family",mariage:"Marriage",enfantement:"Having children (conceiving, pregnancy, childbirth)",travail:"Work or studies",guidance:"Decision or guidance",action_de_grace:"Thanksgiving",autre:"Other"},
+st:{recu:"Received",en_priere:"Being prayed for",exauce:"Answered"},loc:"en-GB"}
+};
+const t=k=>TX[LANG][k];
+const ORDER=["sante","famille","mariage","enfantement","travail","guidance","action_de_grace","autre"];
+const STC={recu:"",en_priere:"o",exauce:"g"};
+const dt=d=>new Date(d).toLocaleDateString(t("loc"),{day:"numeric",month:"long",year:"numeric"});
+const flag=c=>/^[A-Z]{2}$/.test(c||"")?String.fromCodePoint(...[...c].map(x=>127397+x.charCodeAt(0))):"";
+let U=null,PS="",CC="",tmr,lastFocus=null;
+function status(m,e){const x=$("#st");if(!x)return;x.textContent=m;x.className="st"+(e?" e":"");clearTimeout(tmr);if(!e)tmr=setTimeout(()=>{x.textContent=""},4000)}
+
+function texts(){document.title=t("title")+" · EDSP-Sainte Bible";$("#bk").textContent=t("back");$("#h1").textContent=t("title");$("#sub").textContent=t("sub");
+$("#dlt").textContent=t("dlt");$("#dlb").innerHTML="<p>"+esc(t("dlq"))+"</p><ul><li>"+esc(t("dl1"))+"</li><li>"+esc(t("dl2"))+"</li><li>"+esc(t("dl3"))+"</li></ul><p class=\"pn\">"+esc(t("dl4"))+"</p>";
+$("#dly").textContent=t("dly");$("#dln").textContent=t("dln")}
+
+function form(){
+const idb=(PS||CC)?`<div class="idb" id="idb"><b>${esc(t("you"))}</b><div class="row">${PS?`<span>${esc(t("pseudo"))} : <b>${esc(PS)}</b></span>`:""}${CC?`<span>${esc(t("country"))} : <b>${flag(CC)} ${esc(CC)}</b></span>`:""}</div><p class="why" id="why">${esc(t("why"))}</p></div>`:"";
+$("#app").innerHTML=`<div class="card"><h2>${esc(t("dep"))}</h2><p class="pn">${esc(t("note"))}</p>
+<label for="cat">${esc(t("cat"))}</label>
+<select id="cat">${ORDER.map(k=>`<option value="${k}">${esc(t("cats")[k])}</option>`).join("")}</select>
+<div class="fld" id="othw" hidden><label for="oth">${esc(t("oth"))} <span class="hint">${esc(t("othh"))}</span></label><input id="oth" type="text" maxlength="80" autocomplete="off"></div>
+${idb}
+<div class="fld"><label for="txt">${esc(t("msg"))}</label><textarea id="txt" maxlength="1900"></textarea><div class="cnt"><span id="n">0</span> / 1900</div></div>
+<label class="chk" for="anon"><input id="anon" type="checkbox"><span>${esc(t("anon"))} <span class="hint">${esc(t("anonh"))}</span></span></label>
+<button class="p" id="send" type="button">${esc(t("send"))}</button>
+<div class="st" id="st" role="status"></div></div>
+<div class="card"><h2>${esc(t("mine"))}</h2><div id="list"><p class="pn">${esc(t("load"))}</p></div></div>`;
 $("#txt").addEventListener("input",e=>{$("#n").textContent=e.target.value.length});
 $("#cat").addEventListener("change",e=>{$("#othw").hidden=e.target.value!=="autre"});
-$("#send").onclick=async()=>{const t=$("#txt").value.trim(),cat=$("#cat").value,o=$("#oth").value.trim();
-if(cat==="autre"&&o.length<2){status("Précisez en quelques mots le sujet de votre prière.",1);$("#oth").focus();return}
-if(t.length<3){status("Écrivez votre sujet de prière.",1);return}
-const txt=cat==="autre"?"Sujet : "+o+"\n\n"+t:t;
+$("#anon").addEventListener("change",e=>{if(e.target.checked)openDlg();else idState()});
+$("#send").onclick=send;
+$("#list").addEventListener("click",del)}
+
+/* Rester anonyme : explication et confirmation */
+function idState(){const on=$("#anon").checked,b=$("#idb");if(b){b.classList.toggle("off",on);$("#why").textContent=on?t("whyoff"):t("why")}}
+function openDlg(){lastFocus=$("#anon");$("#dlg").hidden=false;$("#dly").focus()}
+function closeDlg(yes){$("#dlg").hidden=true;$("#anon").checked=!!yes;idState();if(lastFocus)lastFocus.focus()}
+$("#dly").onclick=()=>closeDlg(true);
+$("#dln").onclick=()=>closeDlg(false);
+$("#dlg").addEventListener("click",e=>{if(e.target.id==="dlg")closeDlg(false)});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("#dlg").hidden)closeDlg(false)});
+
+async function load(){const l=$("#list");
+const {data,error}=await sb.from("sujets_priere").select("id,categorie,texte,anonyme,statut,created_at").order("created_at",{ascending:false});
+if(error){l.innerHTML='<p class="pn">'+esc(t("nolist"))+'</p>';return}
+l.innerHTML=(data||[]).map(s=>`<div class="it"><b>${esc(t("cats")[s.categorie]||s.categorie)}</b><span class="bd ${STC[s.statut]||""}">${esc(t("st")[s.statut]||s.statut)}</span>${s.anonyme?'<span class="bd">'+esc(t("anonb"))+'</span>':""}<div class="um">${dt(s.created_at)}</div><p>${esc(s.texte)}</p><div class="bar"><button data-id="${s.id}" type="button">${esc(t("del"))}</button></div></div>`).join("")||'<p class="pn">'+esc(t("none"))+'</p>'}
+async function send(){const tx=$("#txt").value.trim(),cat=$("#cat").value,o=$("#oth").value.trim();
+if(cat==="autre"&&o.length<2){status(t("needoth"),1);$("#oth").focus();return}
+if(tx.length<3){status(t("needtxt"),1);return}
+const body=cat==="autre"?t("subj")+o+"\n\n"+tx:tx;
 const b=$("#send");b.disabled=true;
-const {error}=await sb.from("sujets_priere").insert({categorie:cat,texte:txt,anonyme:$("#anon").checked});
+const {error}=await sb.from("sujets_priere").insert({categorie:cat,texte:body,anonyme:$("#anon").checked});
 b.disabled=false;
-if(error){status(/Limite/.test(error.message||"")?"Vous avez atteint la limite de 5 sujets par jour. Réessayez demain.":"Le dépôt a échoué. Réessayez dans un instant.",1);return}
-$("#txt").value="";$("#oth").value="";$("#n").textContent="0";$("#anon").checked=false;status("Merci, votre sujet a bien été reçu.");load()};
-$("#list").addEventListener("click",async e=>{const b=e.target.closest("button[data-id]");if(!b)return;
-if(!b.dataset.s){b.dataset.s="1";b.textContent="Confirmer ?";b.classList.add("d");setTimeout(()=>{if(b.isConnected){delete b.dataset.s;b.textContent="Supprimer";b.classList.remove("d")}},4000);return}
-const {error}=await sb.from("sujets_priere").delete().eq("id",b.dataset.id);if(error){status("La suppression a échoué.",1);return}load()});
+if(error){status(/Limite/.test(error.message||"")?t("limit"):t("fail"),1);return}
+$("#txt").value="";$("#oth").value="";$("#n").textContent="0";$("#anon").checked=false;idState();status(t("thanks"));load()}
+async function del(e){const b=e.target.closest("button[data-id]");if(!b)return;
+if(!b.dataset.s){b.dataset.s="1";b.textContent=t("conf");b.classList.add("d");setTimeout(()=>{if(b.isConnected){delete b.dataset.s;b.textContent=t("del");b.classList.remove("d")}},4000);return}
+const {error}=await sb.from("sujets_priere").delete().eq("id",b.dataset.id);if(error){status(t("delfail"),1);return}load()}
 function say(h){const m=$("#msg");m.innerHTML=h;m.hidden=false}
-(async()=>{
+(async()=>{texts();
 const {data:{session}}=await sb.auth.getSession();
-if(!session){say('<h2>Connexion nécessaire</h2><p class="pn">Connectez-vous d’abord dans l’application, puis revenez ici.</p><a class="back" style="color:var(--cl)" href="index.html">Aller à la connexion</a>');return}
-$("#app").hidden=false;load()})();
+if(!session){say('<h2>'+esc(t("need"))+'</h2><p class="pn">'+esc(t("needb"))+'</p><a class="back" style="color:var(--cl)" href="index.html">'+esc(t("needl"))+'</a>');return}
+U=session.user;const M=U.user_metadata||{};PS=String(M.pseudo||"").trim();CC=String(M.country||"").trim().toUpperCase();
+form();$("#app").hidden=false;load()})();
 </script>
 </body>
 </html>
